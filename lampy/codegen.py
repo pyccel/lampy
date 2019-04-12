@@ -919,9 +919,9 @@ class AST(object):
         # Unknown object, we raise an error.
         raise TypeError('{node} not yet available'.format(node=type(stmt)))
 
-    def _visit_functor_map(self, stmt):
-        func   = stmt.args[0]
-        args   = stmt.args[1:]
+    def _visit_Map(self, stmt):
+        func   = stmt.func
+        args   = stmt.target
 
         # ... get the codomain type
         type_codomain  = self.main_type
@@ -1019,11 +1019,9 @@ class AST(object):
                                 schedule    = self.schedule,
                                 chunk       = self.chunk )
 
-    def _visit_functor_xmap(self, stmt):
-        func   = stmt.args[0]
-        args   = stmt.args[1:]
-
-        assert(len(args) > 1)
+    def _visit_ProductMap(self, stmt):
+        func   = stmt.func
+        args   = stmt.target
 
         # ... get the codomain type
         type_codomain  = self.main_type
@@ -1130,11 +1128,9 @@ class AST(object):
                                 schedule    = self.schedule,
                                 chunk       = self.chunk )
 
-    def _visit_functor_tmap(self, stmt):
-        func   = stmt.args[0]
-        args   = stmt.args[1:]
-
-        assert(len(args) > 1)
+    def _visit_TensorMap(self, stmt):
+        func   = stmt.func
+        args   = stmt.target
 
         # ... get the codomain type
         type_codomain  = self.main_type
@@ -1225,15 +1221,14 @@ class AST(object):
                                 schedule    = self.schedule,
                                 chunk       = self.chunk )
 
-    def _visit_functor_reduce(self, stmt):
-        arguments = stmt.args
+    def _visit_AddReduce(self, stmt):
+        return self._visit_Reduce( stmt, op='+' )
 
-        assert( len(arguments) == 2 )
-        op     = arguments[0]
-        target = arguments[1]
+    def _visit_MulReduce(self, stmt):
+        return self._visit_Reduce( stmt, op='*' )
 
-        # TODO
-        op = '+'
+    def _visit_Reduce(self, stmt, op=None):
+        target = stmt.target
 
         # ... get the codomain type
         type_codomain  = self.main_type
