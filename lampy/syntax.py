@@ -4,23 +4,17 @@ import os
 from os.path import join, dirname
 
 from sympy import Symbol, Lambda, Function, Dummy
-from sympy import Tuple, IndexedBase
-from sympy.core.function import AppliedUndef
-from sympy.core.function import UndefinedFunction
-from sympy import Integer, Float
 from sympy import sympify
-from sympy import FunctionClass
 
 from textx.metamodel import metamodel_from_str
 
-#==============================================================================
-# any argument
-class AnyArgument(Symbol):
-    pass
+from .ast    import Reduce
+from .ast    import _map_registery
+from .ast    import _, AnyArgument
+from .lexeme import _internal_map_functors
+from .lexeme import _internal_reduction_operators
 
-_ = AnyArgument('_')
-
-#==============================================================================
+#==========================================================================
 class NamedAbstraction(object):
     def __init__(self, **kwargs):
         self.name = kwargs.pop('name')
@@ -36,7 +30,7 @@ class Application(object):
         self.name = kwargs.pop('name')
         self.args = kwargs.pop('args')
 
-#==============================================================================
+#==========================================================================
 def to_sympy(stmt):
 
     if isinstance(stmt, NamedAbstraction):
@@ -51,10 +45,36 @@ def to_sympy(stmt):
         return Lambda(args, expr)
 
     elif isinstance(stmt, Application):
-        args = [to_sympy(i) for i in stmt.args]
         name = stmt.name
 
-        return Function(name)(*args)
+        if name in _internal_map_functors:
+            func_name = str(stmt.args[0])
+            func      = Function(func_name)
+
+            arguments = stmt.args[1:]
+            arguments = [to_sympy(i) for i in arguments]
+
+            return _map_registery[name]( func, arguments )
+
+        elif name == 'reduce':
+            if not( len(stmt.args) == 2 ):
+                raise ValueError('Wrong number of arguments for reduce')
+
+            op        = stmt.args[0]
+            if not op in _internal_reduction_operators:
+                msg = "Only 'add' and 'mul' reduction operators are available"
+                raise ValueError(msg)
+
+            arguments = stmt.args[1:]
+            arguments = [to_sympy(i) for i in arguments]
+
+            # TODO add assert on op, to check if it is add, mul
+            return Reduce( op, arguments )
+
+        else:
+            args = [to_sympy(i) for i in stmt.args]
+
+            return Function(name)(*args)
 
     elif isinstance(stmt, (int, float)):
         return stmt
@@ -69,7 +89,7 @@ def to_sympy(stmt):
     else:
         raise TypeError('Not implemented for {}'.format(type(stmt)))
 
-#==============================================================================
+#==========================================================================
 def parse(inputs, debug=False, verbose=False):
     this_folder = dirname(__file__)
 

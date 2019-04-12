@@ -10,6 +10,8 @@ _internal_product_functions = ['product']
 _internal_functions = _internal_zip_functions + _internal_product_functions
 
 _internal_applications = _internal_functions + _internal_functors
+
+_internal_reduction_operators = ['add', 'mul']
 # ...
 
 # ...

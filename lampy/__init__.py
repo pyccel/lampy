@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 from .lexeme        import *
+from .ast           import *
 from .datatypes     import *
 from .syntax        import *
 from .compatibility import *

@@ -22,70 +22,17 @@ from pyccel.ast.basic import Basic
 
 from .datatypes import assign_type, BasicTypeVariable
 from .datatypes import TypeVariable, TypeTuple, TypeList
-from .lexeme import _internal_map_functors
-from .lexeme import _internal_functors
-from .lexeme import _internal_zip_functions
-from .lexeme import _internal_product_functions
-from .lexeme import _internal_applications
-from .lexeme import _elemental_math_functions
-from .lexeme import _math_vector_functions
-from .lexeme import _math_matrix_functions
-from .lexeme import _math_functions
+from .lexeme    import _internal_map_functors
+from .lexeme    import _internal_functors
+from .lexeme    import _internal_zip_functions
+from .lexeme    import _internal_product_functions
+from .lexeme    import _internal_applications
+from .lexeme    import _elemental_math_functions
+from .lexeme    import _math_vector_functions
+from .lexeme    import _math_matrix_functions
+from .lexeme    import _math_functions
+from .ast       import Map, Zip, Product, Reduce
 
-#=========================================================================
-class Map(Basic):
-    """."""
-
-    def __new__( cls, func, target ):
-
-        return Basic.__new__(cls, func, target)
-
-    @property
-    def func(self):
-        return self._args[0]
-
-    @property
-    def target(self):
-        return self._args[1]
-
-#=========================================================================
-class Zip(Basic):
-    def __new__( cls, *args ):
-        return Basic.__new__(cls, args)
-
-    @property
-    def arguments(self):
-        return self._args[0]
-
-    def __len__(self):
-        return len(self.arguments)
-
-class Product(Basic):
-    def __new__( cls, *args ):
-        return Basic.__new__(cls, args)
-
-    @property
-    def arguments(self):
-        return self._args[0]
-
-    def __len__(self):
-        return len(self.arguments)
-
-#=========================================================================
-class Reduce(Basic):
-    """."""
-
-    def __new__( cls, func, target ):
-
-        return Basic.__new__(cls, func, target)
-
-    @property
-    def func(self):
-        return self._args[0]
-
-    @property
-    def target(self):
-        return self._args[1]
 
 #=========================================================================
 def sanitize(expr):
