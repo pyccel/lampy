@@ -21,7 +21,7 @@ from pyccel.ast.core import Return
 from pyccel.ast.basic import Basic
 
 from .datatypes import assign_type, BasicTypeVariable
-from .datatypes import TypeVariable, TypeTuple, TypeList
+from .datatypes import TypeVariable, TypeTuple, TypeList, TypeFunction
 from .lexeme    import _internal_map_functors
 from .lexeme    import _internal_functors
 from .lexeme    import _internal_zip_functions
@@ -78,6 +78,9 @@ class Parser(object):
         self._d_expr    = {}
         self._tag       = random_string( 8 )
 
+        # TODO to be removed later?
+        self._d_functions = {}
+
         # to store current typed expr
         # this must not be a private variable,
         # in order to modify it on the fly
@@ -95,6 +98,7 @@ class Parser(object):
             self._set_type(f, value=type_domain, domain=True)
             self._set_type(f, value=type_codomain, codomain=True)
             self._set_domain_type(type_domain, type_codomain)
+            self._insert_function( f, type_domain, type_codomain )
         # ...
 
         # ... default Type
@@ -142,6 +146,7 @@ class Parser(object):
                 self._set_type(f, value=type_domain, domain=True)
                 self._set_type(f, value=type_codomain, codomain=True)
                 self._set_domain_type(type_domain, type_codomain)
+                self._insert_function( str(f), type_domain, type_codomain )
 
             elif not str(f) in list(_internal_applications) + list(self.typed_functions.keys()):
                 raise NotImplementedError('{} not available'.format(str(f)))
@@ -166,6 +171,10 @@ class Parser(object):
     @property
     def d_domain_types(self):
         return self._d_domain_types
+
+    @property
+    def d_functions(self):
+        return self._d_functions
 
     @property
     def d_expr(self):
@@ -240,8 +249,22 @@ class Parser(object):
         self._d_expr[t_var.name] = expr
 
     def _set_domain_type(self, type_domain, type_codomain):
-#        print('[set_domain_type] {}  --->   {}'.format(type_domain, type_codomain))
         self._d_domain_types[type_codomain] = type_domain
+
+    def _insert_function(self, f, type_domain, type_codomain):
+        # ...
+        if isinstance(f, FunctionDef):
+            f_name = str(f.name)
+
+        elif isinstance(f, str):
+            f_name = f
+
+        else:
+            raise NotImplementedError('{} not available'.format(type(f)))
+        # ...
+
+        type_function = TypeFunction( type_domain, type_codomain )
+        self._d_functions[f_name] = type_function
 
     def doit(self, verbose=False):
 
@@ -310,6 +333,8 @@ class Parser(object):
         type_domain   = TypeList(type_domain)
         type_codomain = TypeList(type_codomain)
         self._set_domain_type(type_domain, type_codomain)
+        # TODO create a new name!!
+        self._insert_function( 'map', type_domain, type_codomain )
 
         self._visit(target, value=type_domain)
         self._set_expr(type_codomain, stmt)
@@ -331,6 +356,8 @@ class Parser(object):
         type_domain   = TypeList(type_domain)
         type_codomain = TypeList(type_codomain)
         self._set_domain_type(type_domain, type_codomain)
+        # TODO create a new name!!
+        self._insert_function( 'xmap', type_domain, type_codomain )
 
         self._visit(target, value=type_domain)
         self._set_expr(type_codomain, stmt)
@@ -355,6 +382,8 @@ class Parser(object):
             type_codomain = TypeList(type_codomain)
 
         self._set_domain_type(type_domain, type_codomain)
+        # TODO create a new name!!
+        self._insert_function( 'tmap', type_domain, type_codomain )
 
         self._visit(target, value=type_domain)
         self._set_expr(type_codomain, stmt)
@@ -387,6 +416,8 @@ class Parser(object):
 
         type_codomain = value
         self._set_domain_type(value, type_codomain)
+        # TODO create a new name!!
+        self._insert_function( 'zip', value, type_codomain )
 
         # update main expression
         self.main = self.main.xreplace({stmt: type_codomain})
@@ -411,6 +442,8 @@ class Parser(object):
 
         type_codomain = value
         self._set_domain_type(value, type_codomain)
+        # TODO create a new name!!
+        self._insert_function( 'product', value, type_codomain )
 
         # update main expression
         self.main = self.main.xreplace({stmt: type_codomain})
@@ -492,6 +525,8 @@ class Parser(object):
         type_domain   = TypeList(type_domain)
         type_codomain = type_codomain.duplicate()
         self._set_domain_type(type_domain, type_codomain)
+        # TODO create a new name!!
+        self._insert_function( 'reduce', type_domain, type_codomain )
 
         self._visit(target, value=type_domain)
         self._set_expr(type_codomain, stmt)

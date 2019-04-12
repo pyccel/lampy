@@ -176,6 +176,45 @@ class TypeList(BasicTypeVariable):
         raise NotImplementedError('')
 
 #=========================================================================
+class TypeFunction(BasicTypeVariable):
+    def __new__( cls, t_domain, t_codomain ):
+        assert(isinstance(t_domain, BasicTypeVariable))
+        assert(isinstance(t_codomain, (TypeVariable, TypeTuple, TypeList)))
+
+        obj = Basic.__new__(cls, t_domain, t_codomain)
+        obj._tag = random_string( 4 )
+
+        return obj
+
+    @property
+    def domain(self):
+        return self._args[0]
+
+    @property
+    def codomain(self):
+        return self._args[1]
+
+    @property
+    def name(self):
+        return 'tf_{}'.format(self.tag)
+
+    def _sympystr(self, printer):
+        sstr = printer.doprint
+        domain = sstr(self.domain)
+        codomain = sstr(self.codomain)
+        return '{domain} ---> {codomain}'.format( domain   = domain,
+                                                  codomain = codomain )
+
+    def view(self):
+        """inspects the variable."""
+        pattern = 'TypeFunction(domain={domain}, codomain={codomain})'
+        return pattern.format( domain   = self.domain.view(),
+                               codomain = self.codomain.view() )
+
+    def duplicate(self):
+        raise NotImplementedError('')
+
+#=========================================================================
 # user friendly function
 # TODO DO WE KEEP IT?
 def assign_type(expr, rank=None):
