@@ -1,0 +1,5 @@
+numpy
+scipy
+sympy==1.2
+pytest
+textx==1.6.1
