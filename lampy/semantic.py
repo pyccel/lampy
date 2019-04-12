@@ -22,15 +22,15 @@ from pyccel.ast.basic import Basic
 
 from .datatypes import assign_type, BasicTypeVariable
 from .datatypes import TypeVariable, TypeTuple, TypeList
-from .glossary import _internal_map_functors
-from .glossary import _internal_functors
-from .glossary import _internal_zip_functions
-from .glossary import _internal_product_functions
-from .glossary import _internal_applications
-from .glossary import _elemental_math_functions
-from .glossary import _math_vector_functions
-from .glossary import _math_matrix_functions
-from .glossary import _math_functions
+from .lexeme import _internal_map_functors
+from .lexeme import _internal_functors
+from .lexeme import _internal_zip_functions
+from .lexeme import _internal_product_functions
+from .lexeme import _internal_applications
+from .lexeme import _elemental_math_functions
+from .lexeme import _math_vector_functions
+from .lexeme import _math_matrix_functions
+from .lexeme import _math_functions
 
 #=========================================================================
 class Map(Basic):

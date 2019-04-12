@@ -29,9 +29,9 @@ from pyccel.ast.parallel.openmp import OMP_Reduction
 
 from .datatypes import TypeVariable, TypeTuple, TypeList
 from .semantic import Parser as SemanticParser
-from .glossary import _internal_applications
-from .glossary import _math_functions
-from .glossary import _internal_map_functors
+from .lexeme import _internal_applications
+from .lexeme import _math_functions
+from .lexeme import _internal_map_functors
 
 #========================================================================
 # TODO improve or copy from pyccel.parser

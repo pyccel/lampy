@@ -36,13 +36,13 @@ from pyccel.ast.utilities import build_types_decorator
 from pyccel.ast.datatypes import get_default_value
 from pyccel.parser import Parser as PyccelParser
 
-from .syntax   import parse as parse_lambda
-from .semantic import Parser as SemanticParser
-from .ast      import AST
+from .syntax    import parse as parse_lambda
+from .semantic  import Parser as SemanticParser
+from .codegen   import AST
 from .utilities import get_decorators
 from .utilities import get_pyccel_imports_code
 from .utilities import get_dependencies_code
-from .printing import pycode
+from .printing  import pycode
 from .interface import LambdaInterface
 
 

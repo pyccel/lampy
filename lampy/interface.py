@@ -24,11 +24,11 @@ from pyccel.ast.numpyext  import Zeros
 from pyccel.ast.basic import Basic
 
 from .datatypes import TypeVariable, TypeTuple, TypeList
-from .semantic import Parser as SemanticParser
-from .glossary import _internal_applications
-from .glossary import _math_functions
-from .glossary import _internal_map_functors
-from .ast import BasicGenerator, Shaping, LambdaFunctionDef
+from .semantic  import Parser as SemanticParser
+from .lexeme  import _internal_applications
+from .lexeme  import _math_functions
+from .lexeme  import _internal_map_functors
+from .codegen   import BasicGenerator, Shaping, LambdaFunctionDef
 
 #=======================================================================================
 def compute_shape( arg, generators ):
