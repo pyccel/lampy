@@ -31,7 +31,8 @@ from .lexeme    import _elemental_math_functions
 from .lexeme    import _math_vector_functions
 from .lexeme    import _math_matrix_functions
 from .lexeme    import _math_functions
-from .ast       import Map, ProductMap, TensorMap, Zip, Product, Reduce
+from .ast       import Map, ProductMap, TensorMap, Zip, Product
+from .ast       import BasicReduce, AddReduce, MulReduce
 
 
 #=========================================================================
@@ -472,12 +473,15 @@ class Parser(object):
 #
 #        return type_codomain
 
-    def _visit_functor_reduce(self, stmt, value=None):
-        arguments = stmt.args
+    def _visit_AddReduce(self, stmt, value=None):
+        return self._visit_Reduce( stmt, value=value, op='+' )
 
-        assert( len(arguments) == 2 )
-        op     = arguments[0]
-        target = arguments[1]
+    def _visit_MulReduce(self, stmt, value=None):
+        return self._visit_Reduce( stmt, value=value, op='*' )
+
+    def _visit_Reduce(self, stmt, value=None, op=None):
+
+        target = stmt.target
 
         type_codomain = self._visit(target)
         assert( isinstance( type_codomain, TypeList ) )

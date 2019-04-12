@@ -8,7 +8,7 @@ from sympy import sympify
 
 from textx.metamodel import metamodel_from_str
 
-from .ast    import Reduce, FunctionSymbol
+from .ast    import AddReduce, MulReduce, FunctionSymbol
 from .ast    import _map_registery
 from .ast    import _, AnyArgument
 from .lexeme import _internal_map_functors
@@ -65,11 +65,13 @@ def to_sympy(stmt):
                 msg = "Only 'add' and 'mul' reduction operators are available"
                 raise ValueError(msg)
 
-            arguments = stmt.args[1:]
-            arguments = [to_sympy(i) for i in arguments]
+            target = to_sympy(stmt.args[1])
 
-            # TODO add assert on op, to check if it is add, mul
-            return Reduce( op, arguments )
+            if op == 'add':
+                return AddReduce( target )
+
+            elif op == 'mul':
+                return MulReduce( target )
 
         else:
             args = [to_sympy(i) for i in stmt.args]

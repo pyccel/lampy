@@ -65,20 +65,21 @@ class Product(Basic):
         return len(self.arguments)
 
 #=========================================================================
-class Reduce(Basic):
+class BasicReduce(Basic):
     """."""
+    def __new__( cls, target ):
 
-    def __new__( cls, func, target ):
-
-        return Basic.__new__(cls, func, target)
-
-    @property
-    def func(self):
-        return self._args[0]
+        return Basic.__new__( cls, target )
 
     @property
     def target(self):
-        return self._args[1]
+        return self._args[0]
+
+class AddReduce(BasicReduce):
+    pass
+
+class MulReduce(BasicReduce):
+    pass
 
 #==========================================================================
 # any argument

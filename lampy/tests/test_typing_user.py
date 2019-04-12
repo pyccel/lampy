@@ -159,8 +159,8 @@ if __name__ == '__main__':
     test_map_product(**settings)
     test_tmap_product(**settings)
 
-#    print('======== reduce ========')
-#    test_reduce_function_list(**settings)
-#    test_reduce_function_zip(**settings)
-#    test_reduce_function_product(**settings)
+    print('======== reduce ========')
+    test_reduce_function_list(**settings)
+    test_reduce_function_zip(**settings)
+    test_reduce_function_product(**settings)
 ###    test_treduce_function_product(**settings)
