@@ -1,6 +1,6 @@
 import numpy as np
 
-from pyccel.functional import xmap, tmap, xproduct
+from lampy import xmap, tmap, xproduct
 
 def test_map():
     f = lambda x,y:x+y

@@ -6,9 +6,8 @@ import numpy as np
 import time
 
 from pyccel.decorators import types, pure
-from pyccel.ast.datatypes import NativeInteger, NativeReal, NativeComplex, NativeBool
-from pyccel.functional.lambdify import _lambdify
-from pyccel.functional import add, mul
+
+from lampy.lambdify import _lambdify
 
 
 #=========================================================
