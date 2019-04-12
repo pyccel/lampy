@@ -1,0 +1,29 @@
+sudo: required
+language: python
+
+# which python versions to test
+python:
+  - "3.5"
+  - "3.6"
+
+# Cache directory $HOME/.cache/pip
+cache: pip
+
+# 
+before_install:
+  - sudo apt-get install gfortran
+  - python -m pip install --upgrade pip
+  - python -m pip install -r requirements.txt
+  - python -m pip uninstall -y lampy
+  - python -m pip uninstall -y pyccel
+  - wget https://raw.githubusercontent.com/pyccel/pyccel/devel/requirements.txt -O requirements_pyccel.txt
+  - python -m pip install -r requirements_pyccel.txt
+  - python -m pip install git+https://github.com/pyccel/pyccel@devel
+
+# command to install dependencies
+install:
+  - python -m pip install .
+
+# command to run tests
+script:
+  - python -m pytest lampy 
