@@ -31,7 +31,7 @@ from .lexeme    import _elemental_math_functions
 from .lexeme    import _math_vector_functions
 from .lexeme    import _math_matrix_functions
 from .lexeme    import _math_functions
-from .ast       import Map, Zip, Product, Reduce
+from .ast       import Map, ProductMap, TensorMap, Zip, Product, Reduce
 
 
 #=========================================================================
@@ -51,23 +51,6 @@ def sanitize(expr):
             first = args[0]
             if isinstance(first, Symbol):
                 args[0] = Function(first.name)
-
-        if name in _internal_applications:
-            if name in _internal_map_functors:
-                return Map(*args)
-
-            elif name == 'reduce':
-                return Reduce(*args)
-
-            elif name in _internal_zip_functions:
-                return Zip(*args)
-
-            elif name in _internal_product_functions:
-                return Product(*args)
-
-            else:
-                msg = '{} not available'.format(name)
-                raise NotImplementedError(msg)
 
         else:
             return Function(name)(*args)
@@ -287,36 +270,6 @@ class Parser(object):
         if hasattr(self, method):
             return getattr(self, method)(stmt, value=value)
 
-        elif name in _internal_applications:
-#            print('[{}]'.format(name))
-
-            FUNCTION = 'function'
-            FUNCTOR  = 'functor'
-
-            if name in ['map', 'xmap', 'tmap']:
-                kind = FUNCTOR
-
-            elif name in ['reduce']:
-                name = 'reduce'
-                kind = FUNCTOR
-
-            elif name in ['zip']:
-                name = 'zip'
-                kind = FUNCTION
-
-            elif name in ['product', 'pproduct']:
-                name = 'product'
-                kind = FUNCTION
-
-            else:
-                raise NotImplementedError('{}'.format(name))
-
-            pattern = '_visit_{kind}_{name}'
-            method  = pattern.format(kind=kind, name=name)
-            method = getattr(self, method)
-
-            return method(stmt, value=value)
-
         # Unknown object, we raise an error.
         raise TypeError('{node} not yet available'.format(node=type(stmt)))
 
@@ -341,45 +294,10 @@ class Parser(object):
         assert(not( value is None ))
         self._set_type(stmt, value)
 
-    def _visit_functor_map(self, stmt, value=None):
-        arguments = stmt.args
-
-        assert( len(arguments) > 1 )
-        func   = arguments[0]
-        target = Zip(*arguments[1:])
-
-        type_codomain = self._get_type(func, codomain=True)
-        type_domain   = self._get_type(func, domain=True)
-
-        if not type_codomain:
-            print('> Unable to compute type for {} '.format(stmt))
-            raise NotImplementedError('')
-
-#        # TODO improve
-#        if stmt.__class__.__name__ in ['tmap', 'ptmap']:
-#            # TODO check that rank is the same for all domain
-#            assert(isinstance(target, AppliedUndef))
-#            assert(target.__class__.__name__ in ['product', 'pproduct'])
-#
-#            for i in range(0, len(target.args) - 1):
-#                type_domain   = TypeList(type_domain)
-#                type_codomain = TypeList(type_codomain)
-
-        type_domain   = TypeList(type_domain)
-        type_codomain = TypeList(type_codomain)
-        self._set_domain_type(type_domain, type_codomain)
-
-        self._visit(target, value=type_domain)
-        self._set_expr(type_codomain, stmt)
-
-        return type_codomain
-
-    def _visit_functor_xmap(self, stmt, value=None):
-        arguments = stmt.args
-
-        assert( len(arguments) > 1 )
-        func   = arguments[0]
-        target = Product(*arguments[1:])
+    def _visit_Map(self, stmt, value=None):
+        func   = stmt.func
+        target = stmt.target
+        target = Zip(*target)
 
         type_codomain = self._get_type(func, codomain=True)
         type_domain   = self._get_type(func, domain=True)
@@ -397,12 +315,31 @@ class Parser(object):
 
         return type_codomain
 
-    def _visit_functor_tmap(self, stmt, value=None):
-        arguments = stmt.args
+    def _visit_ProductMap(self, stmt, value=None):
+        func   = stmt.func
+        target = stmt.target
+        target = Product(*target)
 
-        assert( len(arguments) > 1 )
-        func   = arguments[0]
-        target = Product(*arguments[1:])
+        type_codomain = self._get_type(func, codomain=True)
+        type_domain   = self._get_type(func, domain=True)
+
+        if not type_codomain:
+            print('> Unable to compute type for {} '.format(stmt))
+            raise NotImplementedError('')
+
+        type_domain   = TypeList(type_domain)
+        type_codomain = TypeList(type_codomain)
+        self._set_domain_type(type_domain, type_codomain)
+
+        self._visit(target, value=type_domain)
+        self._set_expr(type_codomain, stmt)
+
+        return type_codomain
+
+    def _visit_TensorMap(self, stmt, value=None):
+        func   = stmt.func
+        target = stmt.target
+        target = Product(*target)
 
         type_codomain = self._get_type(func, codomain=True)
         type_domain   = self._get_type(func, domain=True)

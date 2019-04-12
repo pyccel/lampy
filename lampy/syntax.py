@@ -8,7 +8,7 @@ from sympy import sympify
 
 from textx.metamodel import metamodel_from_str
 
-from .ast    import Reduce
+from .ast    import Reduce, FunctionSymbol
 from .ast    import _map_registery
 from .ast    import _, AnyArgument
 from .lexeme import _internal_map_functors
@@ -49,7 +49,7 @@ def to_sympy(stmt):
 
         if name in _internal_map_functors:
             func_name = str(stmt.args[0])
-            func      = Function(func_name)
+            func      = FunctionSymbol(func_name)
 
             arguments = stmt.args[1:]
             arguments = [to_sympy(i) for i in arguments]

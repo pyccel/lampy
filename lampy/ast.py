@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from sympy import Symbol
+from sympy import Symbol, Tuple
 
 from pyccel.ast.basic import Basic
 
@@ -9,6 +9,11 @@ class BasicMap(Basic):
     """."""
 
     def __new__( cls, func, target ):
+
+        if not isinstance(target, (list, tuple, Tuple)):
+            target = [target]
+
+        target = Tuple(*target)
 
         return Basic.__new__(cls, func, target)
 
@@ -19,6 +24,10 @@ class BasicMap(Basic):
     @property
     def target(self):
         return self._args[1]
+
+#    def _xreplace(self, rule):
+#        print('PAR ICI')
+#        import sys; sys.exit(0)
 
 class Map(BasicMap):
     pass
@@ -31,8 +40,9 @@ class TensorMap(BasicMap):
 
 #=========================================================================
 class Zip(Basic):
-    def __new__( cls, *args ):
-        return Basic.__new__(cls, args)
+    def __new__( cls, *target ):
+        target = Tuple(*target)
+        return Basic.__new__(cls, target)
 
     @property
     def arguments(self):
@@ -43,8 +53,9 @@ class Zip(Basic):
 
 #=========================================================================
 class Product(Basic):
-    def __new__( cls, *args ):
-        return Basic.__new__(cls, args)
+    def __new__( cls, *target ):
+        target = Tuple(*target)
+        return Basic.__new__(cls, target)
 
     @property
     def arguments(self):
@@ -72,6 +83,13 @@ class Reduce(Basic):
 #==========================================================================
 # any argument
 class AnyArgument(Symbol):
+    pass
+
+#==========================================================================
+# this is a hack since xreplace returns an error when it finds sympy.core.function.UndefinedFunction
+# TODO see if future versions of sympy will fix this problem
+#(found with version == 1.2)
+class FunctionSymbol(Symbol):
     pass
 
 
