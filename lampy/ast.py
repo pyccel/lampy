@@ -4,10 +4,12 @@ from sympy import Symbol, Tuple, Dict
 
 from pyccel.ast.basic import Basic
 from pyccel.ast.core  import FunctionCall
+from pyccel.codegen.utilities import random_string
 
 #=========================================================================
 class BasicMap(Basic):
     """."""
+    _name = 'BasicMap'
 
     def __new__( cls, func, target ):
 
@@ -16,7 +18,10 @@ class BasicMap(Basic):
 
         target = Tuple(*target)
 
-        return Basic.__new__(cls, func, target)
+        obj = Basic.__new__(cls, func, target)
+        obj._tag = random_string( 4 )
+
+        return obj
 
     @property
     def func(self):
@@ -26,17 +31,28 @@ class BasicMap(Basic):
     def target(self):
         return self._args[1]
 
-#    def _xreplace(self, rule):
-#        print('PAR ICI')
-#        import sys; sys.exit(0)
+    @property
+    def tag(self):
+        return self._tag
+
+    @property
+    def name(self):
+        return '{name}_{tag}'.format(name=self._name, tag=self.tag)
+
 
 class Map(BasicMap):
+    _name = 'map'
+
     pass
 
 class ProductMap(BasicMap):
+    _name = 'xmap'
+
     pass
 
 class TensorMap(BasicMap):
+    _name = 'tmap'
+
     pass
 
 #=========================================================================

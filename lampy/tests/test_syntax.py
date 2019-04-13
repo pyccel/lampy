@@ -36,7 +36,7 @@ def teardown_function():
     from sympy import cache
     cache.clear_cache()
 
-##########################################
-if __name__ == '__main__':
-#    test_syntax_1()
-    test_syntax_partial_1()
+###########################################
+#if __name__ == '__main__':
+##    test_syntax_1()
+#    test_syntax_partial_1()
