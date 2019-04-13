@@ -14,6 +14,8 @@ from lampy import add, mul
 
 #=========================================================
 def test_map_list(**settings):
+    settings['semantic_only'] = True
+
     L = lambda xs: map(sin, xs)
 
     type_L = _lambdify( L, **settings )
@@ -28,8 +30,20 @@ def test_map_list(**settings):
 
     print('DONE.')
 
-#########################################
-if __name__ == '__main__':
-    settings = {'semantic_only' : True}
+#==============================================================================
+# CLEAN UP SYMPY NAMESPACE
+#==============================================================================
 
-    test_map_list(**settings)
+def teardown_module():
+    from sympy import cache
+    cache.clear_cache()
+
+def teardown_function():
+    from sympy import cache
+    cache.clear_cache()
+
+##########################################
+#if __name__ == '__main__':
+#    settings = {'semantic_only' : True}
+#
+#    test_map_list(**settings)

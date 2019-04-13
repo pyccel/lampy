@@ -26,8 +26,8 @@ def test_tmap():
 
     assert(np.allclose(tmap(f, xs, ys), [[5, 6, 7], [6, 7, 8], [7, 8, 9], [8, 9, 10]]))
 
-#########################################
-if __name__ == '__main__':
-    test_map()
-    test_tmap()
-    test_xmap()
+##########################################
+#if __name__ == '__main__':
+#    test_map()
+#    test_tmap()
+#    test_xmap()

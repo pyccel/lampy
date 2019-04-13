@@ -168,19 +168,31 @@ def test_reduce_function_product(**settings):
     te = time.time()
     print('[pyccel]  elapsed time = ', te-tb)
 
+#==============================================================================
+# CLEAN UP SYMPY NAMESPACE
+#==============================================================================
 
-#########################################
-if __name__ == '__main__':
-    settings = {'accelerator': 'openmp'}
+def teardown_module():
+    from sympy import cache
+    cache.clear_cache()
 
-    print('======== map    ========')
-    test_map_list(**settings)
-    test_map_zip(**settings)
-    test_map_product(**settings)
-    test_tmap_product(**settings)
+def teardown_function():
+    from sympy import cache
+    cache.clear_cache()
 
-    print('======== reduce ========')
-    test_reduce_function_list(**settings)
-    test_reduce_function_zip(**settings)
-    test_reduce_function_product(**settings)
-##    test_treduce_function_product(**settings)
+
+##########################################
+#if __name__ == '__main__':
+#    settings = {'accelerator': 'openmp'}
+#
+#    print('======== map    ========')
+#    test_map_list(**settings)
+#    test_map_zip(**settings)
+#    test_map_product(**settings)
+#    test_tmap_product(**settings)
+#
+#    print('======== reduce ========')
+#    test_reduce_function_list(**settings)
+#    test_reduce_function_zip(**settings)
+#    test_reduce_function_product(**settings)
+###    test_treduce_function_product(**settings)
