@@ -19,7 +19,7 @@ def test_syntax_1():
 
 #=========================================================================
 def test_syntax_partial_1():
-    L = parse('lambda _: partial(f, _)')
+    L = parse('lambda _,_: partial(f, x=_, y=_)')
 
 #=========================================================================
 # CLEAN UP SYMPY NAMESPACE
@@ -34,6 +34,6 @@ def teardown_function():
     cache.clear_cache()
 
 ##########################################
-if __name__ == '__main__':
+#if __name__ == '__main__':
 #    test_syntax_1()
-    test_syntax_partial_1()
+#    test_syntax_partial_1()

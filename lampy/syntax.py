@@ -4,14 +4,14 @@ import os
 from os.path import join, dirname
 
 from sympy import Symbol, Lambda, Function, Dummy
-from sympy import sympify
+from sympy import sympify, Dict, Tuple
 
 from textx.metamodel import metamodel_from_str
 
 from .ast    import AddReduce, MulReduce, FunctionSymbol
 from .ast    import _map_registery
 from .ast    import _, AnyArgument
-from .ast    import CurriedFunction
+from .ast    import PartialFunction
 from .lexeme import _internal_map_functors
 from .lexeme import _internal_reduction_operators
 
@@ -30,6 +30,11 @@ class Application(object):
     def __init__(self, **kwargs):
         self.name = kwargs.pop('name')
         self.args = kwargs.pop('args')
+
+class ValuedItem(object):
+    def __init__(self, **kwargs):
+        self.name  = kwargs.pop('name')
+        self.value = kwargs.pop('value')
 
 #==========================================================================
 def to_sympy(stmt):
@@ -81,7 +86,20 @@ def to_sympy(stmt):
             arguments = stmt.args[1:]
             arguments = [to_sympy(i) for i in arguments]
 
-            return CurriedFunction( func, arguments )
+            assert(all([isinstance(i, Tuple) for i in arguments]))
+
+            # ...
+            d = {}
+            for i in arguments:
+                key   = i[0]
+                value = i[1]
+
+                d[key] = value
+
+            arguments = Dict(d)
+            # ...
+
+            return PartialFunction( func, arguments )
 
         else:
             args = [to_sympy(i) for i in stmt.args]
@@ -98,6 +116,11 @@ def to_sympy(stmt):
         else:
             return sympify(stmt)
 
+    elif isinstance(stmt, ValuedItem):
+        key   = to_sympy(stmt.name)
+        value = to_sympy(stmt.value)
+        return Tuple(key, value)
+
     else:
         raise TypeError('Not implemented for {}'.format(type(stmt)))
 
@@ -105,7 +128,7 @@ def to_sympy(stmt):
 def parse(inputs, debug=False, verbose=False):
     this_folder = dirname(__file__)
 
-    classes = [NamedAbstraction, Abstraction, Application]
+    classes = [NamedAbstraction, Abstraction, Application, ValuedItem]
 
     # Get meta-model from language description
     grammar = join(this_folder, 'grammar.tx')

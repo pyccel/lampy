@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from sympy import Symbol, Tuple
+from sympy import Symbol, Tuple, Dict
 
 from pyccel.ast.basic import Basic
 from pyccel.ast.core  import FunctionCall
@@ -98,11 +98,12 @@ class FunctionSymbol(Symbol):
         return FunctionCall(self.name, args)
 
 #=========================================================================
-class CurriedFunction(Basic):
+class PartialFunction(Basic):
     """."""
     def __new__( cls, func, target ):
 
         assert(isinstance( func, FunctionSymbol ))
+        assert(isinstance( target, Dict ))
 
         return Basic.__new__( cls, func, target )
 
