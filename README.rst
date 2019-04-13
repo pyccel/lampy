@@ -1,7 +1,7 @@
 lampy
 =====
 
-|build-master-status| |build-devel-status|
+|build-status|
 
 Lambda calculus for Pyccel. 
 
@@ -16,16 +16,8 @@ Installation
 
     python3 -m pip install --user -e .
 
-.. |build-master-status| image:: https://travis-ci.org/pyccel/lampy.svg?branch=master
+.. |build-status| image:: https://travis-ci.org/pyccel/lampy.svg?branch=master
 
     :alt: build status
     :scale: 100%
     :target: https://travis-ci.org/pyccel/lampy
-
-.. |build-devel-status| image:: https://travis-ci.org/pyccel/lampy.svg?branch=devel
-
-    :alt: build status
-    :scale: 100%
-    :target: https://travis-ci.org/pyccel/lampy
-
-
