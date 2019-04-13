@@ -3,6 +3,7 @@
 from sympy import Symbol, Tuple
 
 from pyccel.ast.basic import Basic
+from pyccel.ast.core  import FunctionCall
 
 #=========================================================================
 class BasicMap(Basic):
@@ -91,7 +92,10 @@ class AnyArgument(Symbol):
 # TODO see if future versions of sympy will fix this problem
 #(found with version == 1.2)
 class FunctionSymbol(Symbol):
-    pass
+
+    def __call__(self, *args):
+        args = Tuple(*args)
+        return FunctionCall(self.name, args)
 
 
 #=========================================================================
