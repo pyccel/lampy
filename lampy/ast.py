@@ -97,6 +97,23 @@ class FunctionSymbol(Symbol):
         args = Tuple(*args)
         return FunctionCall(self.name, args)
 
+#=========================================================================
+class CurriedFunction(Basic):
+    """."""
+    def __new__( cls, func, target ):
+
+        assert(isinstance( func, FunctionSymbol ))
+
+        return Basic.__new__( cls, func, target )
+
+    @property
+    def func(self):
+        return self._args[0]
+
+    @property
+    def target(self):
+        return self._args[0]
+
 
 #=========================================================================
 _map_registery = {'map': Map, 'xmap': ProductMap, 'tmap': TensorMap}

@@ -11,6 +11,7 @@ from textx.metamodel import metamodel_from_str
 from .ast    import AddReduce, MulReduce, FunctionSymbol
 from .ast    import _map_registery
 from .ast    import _, AnyArgument
+from .ast    import CurriedFunction
 from .lexeme import _internal_map_functors
 from .lexeme import _internal_reduction_operators
 
@@ -72,6 +73,15 @@ def to_sympy(stmt):
 
             elif op == 'mul':
                 return MulReduce( target )
+
+        elif name == 'partial':
+            func_name = str(stmt.args[0])
+            func      = FunctionSymbol(func_name)
+
+            arguments = stmt.args[1:]
+            arguments = [to_sympy(i) for i in arguments]
+
+            return CurriedFunction( func, arguments )
 
         else:
             args = [to_sympy(i) for i in stmt.args]

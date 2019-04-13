@@ -4,6 +4,7 @@
 
 from lampy.syntax import parse
 
+#=========================================================================
 def test_syntax_1():
     L = parse('lambda x: 1')
     L = parse('lambda xs: map(g, xs)')
@@ -16,9 +17,13 @@ def test_syntax_1():
     L = parse('lambda a,xs: map(lambda x: g(x,a), xs)')
     L = parse('lambda a,xs: map(lambda _: g(a,_), xs)')
 
-#==============================================================================
+#=========================================================================
+def test_syntax_partial_1():
+    L = parse('lambda _: partial(f, _)')
+
+#=========================================================================
 # CLEAN UP SYMPY NAMESPACE
-#==============================================================================
+#=========================================================================
 
 def teardown_module():
     from sympy import cache
@@ -29,5 +34,6 @@ def teardown_function():
     cache.clear_cache()
 
 ##########################################
-#if __name__ == '__main__':
+if __name__ == '__main__':
 #    test_syntax_1()
+    test_syntax_partial_1()

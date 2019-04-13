@@ -16,7 +16,8 @@ Installation
 
     python3 -m pip install --user -e .
 
-.. |build-status| image:: https://travis-ci.org/pyccel/lampy.svg?branch=master
+.. |build-status| image:: https://travis-ci.org/pyccel/lampy.svg?version=latest
+
     :alt: build status
     :scale: 100%
     :target: https://travis-ci.org/pyccel/lampy
