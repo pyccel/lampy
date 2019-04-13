@@ -8,7 +8,7 @@ from sympy import sympify, Dict, Tuple
 
 from textx.metamodel import metamodel_from_str
 
-from .ast    import AddReduce, MulReduce, FunctionSymbol
+from .ast    import AddReduce, MulReduce, FunctionSymbol, BasicMap
 from .ast    import _map_registery
 from .ast    import _, AnyArgument
 from .ast    import PartialFunction
@@ -52,10 +52,15 @@ def to_sympy(stmt):
 
     elif isinstance(stmt, Application):
         name = stmt.name
+        first = to_sympy(stmt.args[0])
 
         if name in _internal_map_functors:
-            func_name = str(stmt.args[0])
-            func      = FunctionSymbol(func_name)
+            if not isinstance( first, (Lambda, BasicMap) ):
+                func_name = str(stmt.args[0])
+                func      = FunctionSymbol(func_name)
+
+            else:
+                func = first
 
             arguments = stmt.args[1:]
             arguments = [to_sympy(i) for i in arguments]
@@ -80,8 +85,12 @@ def to_sympy(stmt):
                 return MulReduce( target )
 
         elif name == 'partial':
-            func_name = str(stmt.args[0])
-            func      = FunctionSymbol(func_name)
+            if not isinstance( first, Lambda ):
+                func_name = str(stmt.args[0])
+                func      = FunctionSymbol(func_name)
+
+            else:
+                func = first
 
             arguments = stmt.args[1:]
             arguments = [to_sympy(i) for i in arguments]
