@@ -963,11 +963,17 @@ class AST(object):
         # ...
 
         # ... apply the function to arguments
+#        if isinstance(iterator, Tuple):
+#            rhs = func( *iterator )
+#
+#        else:
+#            rhs = func( iterator )
+
         if isinstance(iterator, Tuple):
-            rhs = func( *iterator )
+            rhs = FunctionCall( func.name, iterator )
 
         else:
-            rhs = func( iterator )
+            rhs = FunctionCall( func.name, [iterator] )
         # ...
 
         # ... create lhs
@@ -1072,11 +1078,17 @@ class AST(object):
         # ...
 
         # ... apply the function to arguments
+#        if isinstance(iterator, Tuple):
+#            rhs = func( *iterator )
+#
+#        else:
+#            rhs = func( iterator )
+
         if isinstance(iterator, Tuple):
-            rhs = func( *iterator )
+            rhs = FunctionCall( func.name, iterator )
 
         else:
-            rhs = func( iterator )
+            rhs = FunctionCall( func.name, [iterator] )
         # ...
 
         # ... create lhs
@@ -1165,11 +1177,17 @@ class AST(object):
         # ...
 
         # ... apply the function to arguments
+#        if isinstance(iterator, Tuple):
+#            rhs = func( *iterator )
+#
+#        else:
+#            rhs = func( iterator )
+
         if isinstance(iterator, Tuple):
-            rhs = func( *iterator )
+            rhs = FunctionCall( func.name, iterator )
 
         else:
-            rhs = func( iterator )
+            rhs = FunctionCall( func.name, [iterator] )
         # ...
 
         # ... create lhs
