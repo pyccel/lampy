@@ -8,6 +8,8 @@ from sympy import sympify, Dict, Tuple
 
 from textx.metamodel import metamodel_from_str
 
+from pyccel.codegen.utilities import random_string
+
 from .ast    import AddReduce, MulReduce, FunctionSymbol, BasicMap
 from .ast    import _map_registery
 from .ast    import _, AnyArgument
@@ -48,7 +50,13 @@ def to_sympy(stmt):
         args = [to_sympy(i) for i in stmt.args]
         expr = to_sympy(stmt.expr)
 
-        return Lambda(args, expr)
+        func = Lambda(args, expr)
+        # add a name for the lambda expression
+        # TODO improve this by implementing a new class
+        #      for Lambda in lampy
+        setattr(func, 'name', 'lambda_{}'.format( random_string( 4 ) ))
+
+        return func
 
     elif isinstance(stmt, Application):
         name = stmt.name

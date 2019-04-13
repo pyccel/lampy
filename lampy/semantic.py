@@ -33,6 +33,7 @@ from .lexeme    import _math_matrix_functions
 from .lexeme    import _math_functions
 from .ast       import Map, ProductMap, TensorMap, Zip, Product
 from .ast       import BasicReduce, AddReduce, MulReduce
+from .ast       import BasicMap
 
 
 #=========================================================================
@@ -225,6 +226,15 @@ class Parser(object):
         elif isinstance(target, UndefinedFunction):
             return str(target)
 
+        elif isinstance(target, BasicMap):
+            return target.name
+
+        elif isinstance(target, Lambda):
+            if not hasattr(target, 'name'):
+                raise ValueError('Expecting an attribut name')
+
+            return target.name
+
         elif isinstance(target, Symbol):
             return target.name
 
@@ -327,6 +337,14 @@ class Parser(object):
         type_domain   = self._get_type(func, domain=True)
 
         if not type_codomain:
+            print(stmt)
+            self.inspect()
+            print('----------')
+
+            func = self._visit(func)
+
+            import sys; sys.exit(0)
+
             print('> Unable to compute type for {} '.format(stmt))
             raise NotImplementedError('')
 
@@ -532,3 +550,29 @@ class Parser(object):
         self._set_expr(type_codomain, stmt)
 
         return type_codomain
+
+    def _visit_PartialFunction(self, stmt, value=None):
+        func   = stmt.func
+        target = stmt.target
+
+        # ...
+        if not func.name in self.typed_functions.keys():
+            raise ValueError('{} is not a typed function'.format(func.name))
+
+        funcdef = self.typed_functions[func.name]
+        func_args = funcdef.arguments
+        # ...
+
+        # ...
+        if not func.name in self.d_functions.keys():
+            raise ValueError('{} type not available'.format(func.name))
+
+
+        t_func = self.d_functions[func.name]
+        type_domain = t_func.domain
+        type_codomain = t_func.codomain
+        # ...
+
+        print(type_domain, type_codomain)
+        print(func_args)
+        import sys; sys.exit(0)
