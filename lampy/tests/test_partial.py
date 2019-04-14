@@ -40,8 +40,21 @@ def test_lambda_1(**settings):
     print('DONE.')
 
 
+#=========================================================
+def test_partial_1(**settings):
+    l = lambda xs:  map(lambda _: partial(f2, y=2), xs)
+
+    L = _lambdify( l, namespace = {'f2': f2}, **settings )
+
+    xs = range(0, 5)
+    out = L(xs)
+    expected = [0., 2., 4., 6., 8.]
+    assert(np.allclose( out, expected ))
+
+    print('DONE.')
+
 ##=========================================================
-#def test_partial_1(**settings):
+#def test_partial_old(**settings):
 #    l = lambda xs,ys:  map(map(lambda _: partial(f2, x=_), xs), ys)
 #
 #    L = _lambdify( l, namespace = {'f2': f2}, **settings )

@@ -567,6 +567,7 @@ class Parser(object):
 
         funcdef = self.typed_functions[func.name]
         func_args = funcdef.arguments
+        stmt.set_definition(funcdef)
         # ...
 
         # ... get the codomain of the function

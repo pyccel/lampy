@@ -3,7 +3,7 @@
 from sympy import Symbol, Tuple, Dict, Lambda
 
 from pyccel.ast.basic import Basic
-from pyccel.ast.core  import FunctionCall
+from pyccel.ast.core  import FunctionCall, FunctionDef
 from pyccel.codegen.utilities import random_string
 
 #=========================================================================
@@ -144,6 +144,7 @@ class PartialFunction(Basic):
 
         tag = random_string( 4 )
         obj._name = 'partial_{func}_{tag}'.format( func=func.name, tag=tag )
+        obj._funcdef = None
 
         return obj
 
@@ -158,6 +159,52 @@ class PartialFunction(Basic):
     @property
     def name(self):
         return self._name
+
+    @property
+    def funcdef(self):
+        return self._funcdef
+
+    def set_definition(self, funcdef):
+        self._funcdef = funcdef
+
+    def __call__(self, arguments):
+        # ...
+        if not isinstance(arguments, (list, tuple, Tuple)):
+            arguments = [arguments]
+        arguments = Tuple(*arguments)
+
+        assert(len(self.target) == len(arguments))
+        assert(isinstance(self.funcdef, FunctionDef))
+        # ...
+
+        # ...
+        func      = self.func
+        target    = self.target
+        funcdef   = self.funcdef
+        func_args = funcdef.arguments
+        # ...
+
+        # ...
+        target_arg_names = [x.name for x in list(target.keys())]
+        args = []
+        current = 0
+        for x in func_args:
+            if x.name in target_arg_names:
+                arg = [a for k,a in target.items() if k.name == x.name]
+                assert(len(arg) == 1)
+                arg = arg[0]
+
+                args += [arg]
+
+            else:
+                args += [arguments[current]]
+                current += 1
+        # ...
+
+        args = Tuple(*args)
+        return FunctionCall(func.name, args)
+
+
 
 #=========================================================================
 class LampyLambda(Basic):

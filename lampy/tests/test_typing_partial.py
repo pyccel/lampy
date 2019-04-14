@@ -27,7 +27,7 @@ def f2(x,y):
     return r
 
 #=========================================================
-def test_lambda_1(**settings):
+def test_typing_lambda_1(**settings):
     settings['semantic_only'] = True
 
     l = lambda xs:  map(lambda _: f1(_), xs)
@@ -46,23 +46,41 @@ def test_lambda_1(**settings):
 
 
 #=========================================================
-def test_partial_1(**settings):
+def test_typing_partial_1(**settings):
     settings['semantic_only'] = True
 
-    l = lambda xs,ys:  map(map(lambda _: partial(f2, x=_), xs), ys)
+    l = lambda xs:  map(lambda _: partial(f2, y=2), xs)
 
     type_L = _lambdify( l, namespace = {'f2': f2}, **settings )
 
     assert( isinstance( type_L, TypeList ) )
-    assert( isinstance( type_L.parent, TypeList ) )
 
-    parent = type_L.parent.parent
+    parent = type_L.parent
     assert( isinstance( parent.dtype, NativeReal ) )
     assert( parent.rank == 0 )
     assert( parent.precision == 8 )
     assert( not parent.is_stack_array )
 
     print('DONE.')
+
+##=========================================================
+#def test_typing_partial_old(**settings):
+#    settings['semantic_only'] = True
+#
+#    l = lambda xs,ys:  map(map(lambda _: partial(f2, x=_), xs), ys)
+#
+#    type_L = _lambdify( l, namespace = {'f2': f2}, **settings )
+#
+#    assert( isinstance( type_L, TypeList ) )
+#    assert( isinstance( type_L.parent, TypeList ) )
+#
+#    parent = type_L.parent.parent
+#    assert( isinstance( parent.dtype, NativeReal ) )
+#    assert( parent.rank == 0 )
+#    assert( parent.precision == 8 )
+#    assert( not parent.is_stack_array )
+#
+#    print('DONE.')
 
 
 #=========================================================================
@@ -78,9 +96,9 @@ def teardown_function():
     cache.clear_cache()
 
 
-###########################################
+############################################
 #if __name__ == '__main__':
 #    settings = {'semantic_only' : True}
 #
-#    test_lambda_1(**settings)
-#    test_partial_1(**settings)
+##    test_typing_lambda_1(**settings)
+#    test_typing_partial_1(**settings)

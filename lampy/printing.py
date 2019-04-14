@@ -3,7 +3,7 @@ from sympy import Tuple, Lambda
 
 from pyccel.codegen.printing.pycode import PythonCodePrinter as PyccelPythonCodePrinter
 
-from .ast import BasicMap
+from .ast import BasicMap, PartialFunction
 
 class PythonCodePrinter(PyccelPythonCodePrinter):
 
@@ -15,12 +15,20 @@ class PythonCodePrinter(PyccelPythonCodePrinter):
         fname = self._print(expr.func.__name__)
         return '{fname}({args})'.format(fname=fname, args=args)
 
+    def _print_PartialFunction(self, expr):
+        raise NotImplementedError()
+
     def _print_Call(self, expr):
         if isinstance(expr.expr, Lambda):
             f = expr.expr
             args = expr.arguments
-            expr = f(*args)
-            return self._print(expr)
+            if isinstance(f.expr, PartialFunction):
+                call = f.expr(args)
+
+            else:
+                call = f(*args)
+
+            return self._print(call)
 
         else:
             # TODO improve
