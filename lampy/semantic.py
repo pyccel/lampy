@@ -34,6 +34,7 @@ from .lexeme    import _math_functions
 from .ast       import Map, ProductMap, TensorMap, Zip, Product
 from .ast       import BasicReduce, AddReduce, MulReduce
 from .ast       import BasicMap
+from .ast       import PartialFunction
 
 
 #=========================================================================
@@ -93,12 +94,12 @@ class Parser(object):
         #     TODO use domain and codomain optional args for functions
         self._typed_functions = kwargs.pop('typed_functions', {})
         for f in self.typed_functions.values():
-            type_domain   = assign_type(f.arguments)
-            type_codomain = assign_type(f.results)
+            type_domain   = assign_type( f.arguments )
+            type_codomain = assign_type( f.results )
 
-            self._set_type(f, value=type_domain, domain=True)
-            self._set_type(f, value=type_codomain, codomain=True)
-            self._set_domain_type(type_domain, type_codomain)
+            self._set_type( f, value = type_domain,    domain = True )
+            self._set_type( f, value = type_codomain, codomain = True )
+            self._set_domain_type( type_domain, type_codomain )
             self._insert_function( f, type_domain, type_codomain )
         # ...
 
@@ -269,12 +270,15 @@ class Parser(object):
         elif isinstance(f, str):
             f_name = f
 
+        elif isinstance(f, PartialFunction):
+            f_name = str(f.name)
+
         else:
             raise NotImplementedError('{} not available'.format(type(f)))
         # ...
 
-        type_function = TypeFunction( type_domain, type_codomain )
-        self._d_functions[f_name] = type_function
+        type_func = TypeFunction( type_domain, type_codomain )
+        self._d_functions[f_name] = type_func
 
     def doit(self, verbose=False):
 
@@ -337,16 +341,13 @@ class Parser(object):
         type_domain   = self._get_type(func, domain=True)
 
         if not type_codomain:
-            print(stmt)
-            self.inspect()
-            print('----------')
-
             func = self._visit(func)
+            type_func = self.d_functions[func.name]
+            type_codomain = type_func.codomain
 
-            import sys; sys.exit(0)
-
-            print('> Unable to compute type for {} '.format(stmt))
-            raise NotImplementedError('')
+            if not type_codomain:
+                print('> Unable to compute type for {} '.format(stmt))
+                raise NotImplementedError('')
 
         type_domain   = TypeList(type_domain)
         type_codomain = TypeList(type_codomain)
@@ -563,16 +564,25 @@ class Parser(object):
         func_args = funcdef.arguments
         # ...
 
-        # ...
+        # ... get the codomain of the function
         if not func.name in self.d_functions.keys():
             raise ValueError('{} type not available'.format(func.name))
 
-
-        t_func = self.d_functions[func.name]
-        type_domain = t_func.domain
+        t_func        = self.d_functions[func.name]
         type_codomain = t_func.codomain
         # ...
 
-        print(type_domain, type_codomain)
-        print(func_args)
-        import sys; sys.exit(0)
+        # ...
+        target_arg_names = [i.name for i in list(target.keys())]
+        newargs = [i for i in func_args if not i.name in target_arg_names]
+        # ...
+
+        # ... assign domain type from new arguments
+        type_domain = assign_type( newargs )
+        # ...
+
+        # ...
+        self._insert_function( stmt, type_domain, type_codomain )
+        # ...
+
+        return stmt

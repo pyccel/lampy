@@ -121,7 +121,12 @@ class PartialFunction(Basic):
         assert(isinstance( func, FunctionSymbol ))
         assert(isinstance( target, Dict ))
 
-        return Basic.__new__( cls, func, target )
+        obj = Basic.__new__( cls, func, target )
+
+        tag = random_string( 4 )
+        obj._name = 'partial_{func}_{tag}'.format( func=func.name, tag=tag )
+
+        return obj
 
     @property
     def func(self):
@@ -129,8 +134,11 @@ class PartialFunction(Basic):
 
     @property
     def target(self):
-        return self._args[0]
+        return self._args[1]
 
+    @property
+    def name(self):
+        return self._name
 
 #=========================================================================
 _map_registery = {'map': Map, 'xmap': ProductMap, 'tmap': TensorMap}
