@@ -341,22 +341,33 @@ class Parser(object):
     def _visit_Lambda(self, stmt, value=None):
         # TODO treat args
 
-        # ... compute the codomain type
-        type_codomain = self._visit(stmt.expr)
+        # ... treat the expression of the lambda
+        expr = self._visit(stmt.expr)
         # ...
 
         # ...
         if isinstance( stmt.expr, AppliedUndef ):
             func_name = stmt.expr.__class__.__name__
-            type_func = self.d_functions[func_name]
-            type_domain = type_func.domain
+
+        elif isinstance( stmt.expr, PartialFunction ):
+            func_name = stmt.expr.name
+
+        else:
+            msg = '{} not available yet'.format(type(stmt.expr))
+            raise NotImplementedError(msg)
+        # ...
+
+        # ...
+        type_func     = self.d_functions[func_name]
+        type_domain   = type_func.domain
+        type_codomain = type_func.codomain
         # ...
 
         # ...
         self._insert_function( stmt, type_domain, type_codomain )
         # ...
 
-        return stmt
+        return type_codomain
 
     def _visit_LampyLambda(self, stmt, value=None):
 
@@ -387,7 +398,8 @@ class Parser(object):
         type_domain   = self._get_type(func, domain=True)
 
         if not type_codomain:
-            func = self._visit(func)
+            expr = self._visit(func)
+
             type_func = self.d_functions[func.name]
             type_domain = type_func.domain
             type_codomain = type_func.codomain
@@ -465,6 +477,9 @@ class Parser(object):
 
         elif isinstance(value.parent, TypeTuple):
             values = value.types.types
+
+        elif isinstance(value.parent, TypeList):
+            values = [value.parent]
 
         else:
             msg = '{} not available yet'.format(type(value.parent))
@@ -575,4 +590,4 @@ class Parser(object):
         self._insert_function( stmt, type_domain, type_codomain )
         # ...
 
-        return stmt
+        return type_codomain

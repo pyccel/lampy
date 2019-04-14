@@ -52,15 +52,15 @@ def test_partial_1(**settings):
     l = lambda xs,ys:  map(map(lambda _: partial(f2, x=_), xs), ys)
 
     type_L = _lambdify( l, namespace = {'f2': f2}, **settings )
-    print(type_L)
 
-#    assert( isinstance( type_L, TypeList ) )
-#
-#    parent = type_L.parent
-#    assert( isinstance( parent.dtype, NativeReal ) )
-#    assert( parent.rank == 0 )
-#    assert( parent.precision == 8 )
-#    assert( not parent.is_stack_array )
+    assert( isinstance( type_L, TypeList ) )
+    assert( isinstance( type_L.parent, TypeList ) )
+
+    parent = type_L.parent.parent
+    assert( isinstance( parent.dtype, NativeReal ) )
+    assert( parent.rank == 0 )
+    assert( parent.precision == 8 )
+    assert( not parent.is_stack_array )
 
     print('DONE.')
 
@@ -78,9 +78,9 @@ def teardown_function():
     cache.clear_cache()
 
 
-##########################################
-if __name__ == '__main__':
-    settings = {'semantic_only' : True}
-
-    test_lambda_1(**settings)
+###########################################
+#if __name__ == '__main__':
+#    settings = {'semantic_only' : True}
+#
+#    test_lambda_1(**settings)
 #    test_partial_1(**settings)
