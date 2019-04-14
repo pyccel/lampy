@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from sympy import Symbol, Tuple, Dict
+from sympy import Symbol, Tuple, Dict, Lambda
 
 from pyccel.ast.basic import Basic
 from pyccel.ast.core  import FunctionCall
@@ -59,11 +59,17 @@ class TensorMap(BasicMap):
 class Zip(Basic):
     def __new__( cls, *target ):
         target = Tuple(*target)
-        return Basic.__new__(cls, target)
+        obj = Basic.__new__(cls, target)
+        obj._name = 'zip_{}'.format( random_string( 4 ) )
+        return obj
 
     @property
     def arguments(self):
         return self._args[0]
+
+    @property
+    def name(self):
+        return self._name
 
     def __len__(self):
         return len(self.arguments)
@@ -72,11 +78,17 @@ class Zip(Basic):
 class Product(Basic):
     def __new__( cls, *target ):
         target = Tuple(*target)
-        return Basic.__new__(cls, target)
+        obj = Basic.__new__(cls, target)
+        obj._name = 'product_{}'.format( random_string( 4 ) )
+        return obj
 
     @property
     def arguments(self):
         return self._args[0]
+
+    @property
+    def name(self):
+        return self._name
 
     def __len__(self):
         return len(self.arguments)
@@ -86,11 +98,18 @@ class BasicReduce(Basic):
     """."""
     def __new__( cls, target ):
 
-        return Basic.__new__( cls, target )
+        obj = Basic.__new__(cls, target)
+        obj._name = 'reduce_{}'.format( random_string( 4 ) )
+        return obj
 
     @property
     def target(self):
         return self._args[0]
+
+    @property
+    def name(self):
+        return self._name
+
 
 class AddReduce(BasicReduce):
     pass
@@ -139,6 +158,19 @@ class PartialFunction(Basic):
     @property
     def name(self):
         return self._name
+
+#=========================================================================
+class LampyLambda(Basic):
+
+    def __new__( cls, func ):
+
+        assert(isinstance( func, Lambda ))
+
+        return Basic.__new__( cls, func )
+
+    @property
+    def func(self):
+        return self._args[0]
 
 #=========================================================================
 _map_registery = {'map': Map, 'xmap': ProductMap, 'tmap': TensorMap}

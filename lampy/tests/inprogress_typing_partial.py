@@ -15,10 +15,35 @@ from lampy import add, mul
 
 #=========================================================
 @pure
+@types('double')
+def f1(x):
+    r = 2*x
+    return r
+
+@pure
 @types('double', 'double')
 def f2(x,y):
     r = x*y
     return r
+
+#=========================================================
+def test_lambda_1(**settings):
+    settings['semantic_only'] = True
+
+    l = lambda xs:  map(lambda _: f1(_), xs)
+
+    type_L = _lambdify( l, namespace = {'f1': f1}, **settings )
+
+    assert( isinstance( type_L, TypeList ) )
+
+    parent = type_L.parent
+    assert( isinstance( parent.dtype, NativeReal ) )
+    assert( parent.rank == 0 )
+    assert( parent.precision == 8 )
+    assert( not parent.is_stack_array )
+
+    print('DONE.')
+
 
 #=========================================================
 def test_partial_1(**settings):
@@ -27,6 +52,7 @@ def test_partial_1(**settings):
     l = lambda xs,ys:  map(map(lambda _: partial(f2, x=_), xs), ys)
 
     type_L = _lambdify( l, namespace = {'f2': f2}, **settings )
+    print(type_L)
 
 #    assert( isinstance( type_L, TypeList ) )
 #
@@ -56,4 +82,5 @@ def teardown_function():
 if __name__ == '__main__':
     settings = {'semantic_only' : True}
 
-    test_partial_1(**settings)
+    test_lambda_1(**settings)
+#    test_partial_1(**settings)

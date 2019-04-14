@@ -35,6 +35,7 @@ from .ast       import Map, ProductMap, TensorMap, Zip, Product
 from .ast       import BasicReduce, AddReduce, MulReduce
 from .ast       import BasicMap
 from .ast       import PartialFunction
+from .ast       import LampyLambda
 
 
 #=========================================================================
@@ -72,7 +73,7 @@ class Parser(object):
     def __init__(self, expr, **kwargs):
         assert(isinstance(expr, Lambda))
 
-        self._expr = expr
+        self._expr = LampyLambda( expr )
 
         # ...
         self._d_types   = {}
@@ -86,7 +87,7 @@ class Parser(object):
         # to store current typed expr
         # this must not be a private variable,
         # in order to modify it on the fly
-        self.main = expr
+        self.main = self.expr
         self.main_type = None
         # ...
 
@@ -273,6 +274,13 @@ class Parser(object):
         elif isinstance(f, PartialFunction):
             f_name = str(f.name)
 
+        elif isinstance(f, Lambda):
+            if not hasattr(f, 'name'):
+                msg = 'Expecting {} to have a name'.format(f)
+                raise AttributeError(msg)
+
+            f_name = str(f.name)
+
         else:
             raise NotImplementedError('{} not available'.format(type(f)))
         # ...
@@ -308,15 +316,53 @@ class Parser(object):
         if hasattr(self, method):
             return getattr(self, method)(stmt, value=value)
 
+        elif name in self.d_functions.keys():
+            # application case
+            if not isinstance( stmt, AppliedUndef ):
+                raise TypeError('Expecting an application')
+
+            # ... in the case of a typed function, we check that the number of
+            #     arguments is the same as the call
+            if name in self.typed_functions.keys():
+                f = self.typed_functions[name]
+                f_args = f.arguments
+                call_args = stmt.args
+                assert(len(call_args) == len(f_args))
+            # ...
+
+            # get the type of the function
+            type_func = self.d_functions[name]
+
+            return type_func.codomain
+
         # Unknown object, we raise an error.
         raise TypeError('{node} not yet available'.format(node=type(stmt)))
 
     def _visit_Lambda(self, stmt, value=None):
         # TODO treat args
-        self.main = self._visit(stmt.expr)
+
+        # ... compute the codomain type
+        type_codomain = self._visit(stmt.expr)
+        # ...
+
+        # ...
+        if isinstance( stmt.expr, AppliedUndef ):
+            func_name = stmt.expr.__class__.__name__
+            type_func = self.d_functions[func_name]
+            type_domain = type_func.domain
+        # ...
+
+        # ...
+        self._insert_function( stmt, type_domain, type_codomain )
+        # ...
+
+        return stmt
+
+    def _visit_LampyLambda(self, stmt, value=None):
+
+        self.main = self._visit(stmt.func.expr)
         if isinstance(self.main, BasicTypeVariable):
             self.main_type = self.main
-
         return self.main
 
     def _visit_TypeVariable(self, stmt, value=None):
@@ -343,6 +389,7 @@ class Parser(object):
         if not type_codomain:
             func = self._visit(func)
             type_func = self.d_functions[func.name]
+            type_domain = type_func.domain
             type_codomain = type_func.codomain
 
             if not type_codomain:
@@ -352,8 +399,7 @@ class Parser(object):
         type_domain   = TypeList(type_domain)
         type_codomain = TypeList(type_codomain)
         self._set_domain_type(type_domain, type_codomain)
-        # TODO create a new name!!
-        self._insert_function( 'map', type_domain, type_codomain )
+        self._insert_function( stmt.name, type_domain, type_codomain )
 
         self._visit(target, value=type_domain)
         self._set_expr(type_codomain, stmt)
@@ -375,8 +421,7 @@ class Parser(object):
         type_domain   = TypeList(type_domain)
         type_codomain = TypeList(type_codomain)
         self._set_domain_type(type_domain, type_codomain)
-        # TODO create a new name!!
-        self._insert_function( 'xmap', type_domain, type_codomain )
+        self._insert_function( stmt.name, type_domain, type_codomain )
 
         self._visit(target, value=type_domain)
         self._set_expr(type_codomain, stmt)
@@ -401,8 +446,7 @@ class Parser(object):
             type_codomain = TypeList(type_codomain)
 
         self._set_domain_type(type_domain, type_codomain)
-        # TODO create a new name!!
-        self._insert_function( 'tmap', type_domain, type_codomain )
+        self._insert_function( stmt.name, type_domain, type_codomain )
 
         self._visit(target, value=type_domain)
         self._set_expr(type_codomain, stmt)
@@ -435,11 +479,14 @@ class Parser(object):
 
         type_codomain = value
         self._set_domain_type(value, type_codomain)
-        # TODO create a new name!!
-        self._insert_function( 'zip', value, type_codomain )
+        self._insert_function( stmt.name, value, type_codomain )
 
-        # update main expression
-        self.main = self.main.xreplace({stmt: type_codomain})
+#        # update main expression
+#        print(self.main)
+#        print(stmt)
+#        print(type_codomain)
+##        import sys; sys.exit(0)
+#        self.main = self.main.xreplace({stmt: type_codomain})
         self._set_expr(type_codomain, stmt)
 
         return type_codomain
@@ -461,69 +508,13 @@ class Parser(object):
 
         type_codomain = value
         self._set_domain_type(value, type_codomain)
-        # TODO create a new name!!
-        self._insert_function( 'product', value, type_codomain )
+        self._insert_function( stmt.name, value, type_codomain )
 
         # update main expression
         self.main = self.main.xreplace({stmt: type_codomain})
         self._set_expr(type_codomain, stmt)
 
         return type_codomain
-
-
-#    def _visit_function_zip(self, stmt, value=None):
-#        arguments = stmt.args
-#
-#        # we know here that len(arguments) > 1
-#        # and value.types is a TypeTuple
-#
-#        assert(not( value is None ))
-#        assert(isinstance(value, TypeList))
-#
-#        if not isinstance(value.parent, TypeTuple):
-#            msg = '{} not available yet'.format(type(value.parent))
-#            raise NotImplementedError(msg)
-#
-#        values = value.types.types
-#        # TODO can we use len(value.typs) and avoid calling visit?
-#        n = len(value.types)
-#
-#        for a,t in zip(arguments, values):
-#            type_domain  = TypeList(t)
-#            self._visit(a, value=type_domain)
-#
-#        type_codomain = value
-#        self._set_domain_type(value, type_codomain)
-#
-#        # update main expression
-#        self.main = self.main.xreplace({stmt: type_codomain})
-#        self._set_expr(type_codomain, stmt)
-#
-#        return type_codomain
-
-#    def _visit_function_product(self, stmt, value=None):
-#        arguments = stmt.args
-#
-#        assert(not( value is None ))
-#        assert(isinstance(value, TypeList))
-#
-##        # TODO add this check only when using tmap
-##        assert(len(value) == len(arguments))
-#
-#        values = value.types.types
-#
-#        for a,t in zip(arguments, values):
-#            type_domain  = TypeList(t)
-#            self._visit(a, value=type_domain)
-#
-#        type_codomain = value
-#        self._set_domain_type(value, type_codomain)
-#
-#        # update main expression
-#        self.main = self.main.xreplace({stmt: type_codomain})
-#        self._set_expr(type_codomain, stmt)
-#
-#        return type_codomain
 
     def _visit_AddReduce(self, stmt, value=None):
         return self._visit_Reduce( stmt, value=value, op='+' )
@@ -544,8 +535,7 @@ class Parser(object):
         type_domain   = TypeList(type_domain)
         type_codomain = type_codomain.duplicate()
         self._set_domain_type(type_domain, type_codomain)
-        # TODO create a new name!!
-        self._insert_function( 'reduce', type_domain, type_codomain )
+        self._insert_function( stmt.name, type_domain, type_codomain )
 
         self._visit(target, value=type_domain)
         self._set_expr(type_codomain, stmt)

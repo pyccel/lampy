@@ -1336,13 +1336,15 @@ class AST(object):
                                          accelerator = self.accelerator )
 
 
-    def _visit_Lambda(self, stmt):
+    def _visit_LampyLambda(self, stmt):
+        func = stmt.func
+
         # ...
-        args = [self._visit(i) for i in stmt.variables]
+        args = [self._visit(i) for i in func.variables]
         # ...
 
         # ...
-        body = self._visit(stmt.expr)
+        body = self._visit(func.expr)
         body = MainBlock( body,
                           accelerator = self.accelerator )
         body = [body]
