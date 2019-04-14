@@ -36,6 +36,7 @@ from .ast       import BasicReduce, AddReduce, MulReduce
 from .ast       import BasicMap
 from .ast       import PartialFunction
 from .ast       import LampyLambda
+from .ast       import FunctionSymbol
 
 
 #=========================================================================
@@ -136,13 +137,10 @@ class Parser(object):
         # ...
 
         # ... get all functions
-        calls = list(expr.atoms(AppliedUndef))
-        map_funcs = [i.args[0] for i in calls if i.__class__.__name__ in _internal_map_functors]
-        callables = [i.func for i in calls  if not i.__class__.__name__ in _internal_functors]
-        functions = list(set(map_funcs + callables))
+        functions = list(expr.atoms(FunctionSymbol))
 
         for f in functions:
-            if str(f) in _elemental_math_functions:
+            if f.name in _elemental_math_functions:
                 type_domain   = self.default_type
                 type_codomain = self.default_type
 

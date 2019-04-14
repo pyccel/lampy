@@ -16,6 +16,11 @@ from sympy.core.function import AppliedUndef
 from sympy.core.function import UndefinedFunction
 from sympy import sympify
 from sympy import Dummy
+from sympy import Function
+from sympy import preorder_traversal
+from sympy import NumberSymbol
+from sympy.printing.pycode import _known_functions_math
+from sympy.printing.pycode import _known_constants_math
 
 from pyccel.codegen.utilities import get_source_function
 from pyccel.ast.datatypes import dtype_and_precsision_registry as dtype_registry
@@ -24,7 +29,22 @@ from pyccel.ast.datatypes import NativeInteger, NativeReal, NativeComplex, Nativ
 from pyccel.ast.datatypes import get_default_value
 from pyccel.parser import Parser
 
-#==============================================================================
+from .ast import FunctionSymbol
+
+#==========================================================================
+def math_atoms_as_str(expr):
+    math_functions  = [str(type(i)) for i in preorder_traversal(expr) if isinstance(i, Function)]
+    math_functions += [i.name       for i in expr.atoms(FunctionSymbol)]
+    math_functions  = [i for i in math_functions if i in _known_functions_math.values()]
+    math_functions  = list(set(math_functions)) # remove redundancies
+
+    math_constants = [str(i) for i in preorder_traversal(expr) if isinstance(i, NumberSymbol)]
+    math_constants = [i for i in math_constants if i in _known_constants_math.values()]
+    math_constants = list(set(math_constants)) # remove redundancies
+
+    return math_functions + math_constants
+
+#==========================================================================
 def get_decorators(cls):
     target = cls
     decorators = {}
@@ -45,7 +65,7 @@ def get_decorators(cls):
     node_iter.visit(ast.parse(inspect.getsource(target)))
     return decorators
 
-#==============================================================================
+#==========================================================================
 def get_pyccel_imports_code():
     code = ''
     code += '\nfrom pyccel.decorators import types'
@@ -60,7 +80,7 @@ def get_pyccel_imports_code():
 
     return code
 
-#==============================================================================
+#==========================================================================
 def get_numpy_imports_code():
     code = ''
     code += '\nfrom numpy import zeros'
@@ -68,7 +88,7 @@ def get_numpy_imports_code():
 
     return code
 
-#==============================================================================
+#==========================================================================
 def get_dependencies_code(user_functions):
     code = ''
     for f in user_functions:
@@ -78,7 +98,7 @@ def get_dependencies_code(user_functions):
     return code
 
 
-#==============================================================================
+#==========================================================================
 def parse_where_stmt(where_stmt):
     """syntactic parsing of the where statement."""
 
@@ -115,7 +135,7 @@ def parse_where_stmt(where_stmt):
         return where_stmt
 
 
-#==============================================================================
+#==========================================================================
 # TODO move as method of FunctionDef
 def get_results_shape(func):
     """returns a dictionary that contains for each result, its shape. When using
@@ -175,7 +195,7 @@ def get_results_shape(func):
     return d_shapes
 
 
-#==============================================================================
+#==========================================================================
 def _get_default_value(var, op=None):
     """Returns the default value of a variable depending on its datatype and the
     used operation."""

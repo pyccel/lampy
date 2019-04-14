@@ -13,7 +13,7 @@ from lampy import TypeVariable, TypeTuple, TypeList
 from lampy import add, mul
 
 #=========================================================
-def test_map_list(**settings):
+def test_map_sin_list(**settings):
     settings['semantic_only'] = True
 
     L = lambda xs: map(sin, xs)
@@ -42,8 +42,8 @@ def teardown_function():
     from sympy import cache
     cache.clear_cache()
 
-##########################################
+###########################################
 #if __name__ == '__main__':
 #    settings = {'semantic_only' : True}
 #
-#    test_map_list(**settings)
+#    test_map_sin_list(**settings)

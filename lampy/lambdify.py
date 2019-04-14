@@ -42,6 +42,7 @@ from .codegen   import AST
 from .utilities import get_decorators
 from .utilities import get_pyccel_imports_code
 from .utilities import get_dependencies_code
+from .utilities import math_atoms_as_str
 from .printing  import pycode
 from .interface import LambdaInterface
 
@@ -136,8 +137,25 @@ def _lambdify(func, namespace={}, **kwargs):
         return pycode(func)
     # ...
 
+    # ...
+    imports = []
+    # ...
+
+    # ... get math functions and constants
+    math_elements = math_atoms_as_str(func)
+    math_imports = []
+    for e in math_elements:
+        math_imports += [Import(e, 'numpy')]
+
+    imports += math_imports
+
+    # convert to a string
+    imports = '\n'.join([pycode(i) for i in imports])
+    # ...
+
     # ... print python code
     code  = get_pyccel_imports_code()
+    code += '\n' + imports + '\n'
     code += get_dependencies_code(list(user_functions.values()))
     code += '\n\n'
     code += pycode(func)
@@ -168,8 +186,6 @@ def _lambdify(func, namespace={}, **kwargs):
     # ...
 
     # we return a module, that will processed by epyccel
-    if not typed_functions:
-        raise NotImplementedError('TODO')
 
     # ... module case
     from pyccel.epyccel import epyccel
@@ -184,7 +200,7 @@ def _lambdify(func, namespace={}, **kwargs):
 #    ####### DEBUG
 #    return f2py_func
 
-    if not typed_functions or not func.is_procedure:
+    if not func.is_procedure:
         return f2py_func
     # ...
 
