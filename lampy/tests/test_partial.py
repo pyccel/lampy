@@ -62,9 +62,9 @@ def teardown_function():
     cache.clear_cache()
 
 
-############################################
+#############################################
 #if __name__ == '__main__':
 #    settings = {}
-#
-#    test_lambda_1(**settings)
-##    test_partial_1(**settings)
+##
+##    test_lambda_1(**settings)
+#    test_partial_1(**settings)

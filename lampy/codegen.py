@@ -33,6 +33,7 @@ from .lexeme import _internal_applications
 from .lexeme import _math_functions
 from .lexeme import _internal_map_functors
 from .ast import Call
+from .ast import BasicMap
 
 #========================================================================
 # TODO improve or copy from pyccel.parser
@@ -924,6 +925,11 @@ class AST(object):
         func   = stmt.func
         args   = stmt.target
 
+        # ...
+        if isinstance(func, BasicMap):
+            raise TypeError("'map' object is not callable")
+        # ...
+
         # ... get the codomain type
         type_codomain  = self.main_type
         type_domain    = self.d_domain_types[type_codomain]
@@ -1024,6 +1030,11 @@ class AST(object):
     def _visit_ProductMap(self, stmt):
         func   = stmt.func
         args   = stmt.target
+
+        # ...
+        if isinstance(func, BasicMap):
+            raise TypeError("'map' object is not callable")
+        # ...
 
         # ... get the codomain type
         type_codomain  = self.main_type
@@ -1129,6 +1140,11 @@ class AST(object):
     def _visit_TensorMap(self, stmt):
         func   = stmt.func
         args   = stmt.target
+
+        # ...
+        if isinstance(func, BasicMap):
+            raise TypeError("'map' object is not callable")
+        # ...
 
         # ... get the codomain type
         type_codomain  = self.main_type

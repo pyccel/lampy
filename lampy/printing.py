@@ -3,6 +3,8 @@ from sympy import Tuple, Lambda
 
 from pyccel.codegen.printing.pycode import PythonCodePrinter as PyccelPythonCodePrinter
 
+from .ast import BasicMap
+
 class PythonCodePrinter(PyccelPythonCodePrinter):
 
     def __init__(self, settings=None):
