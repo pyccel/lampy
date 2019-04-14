@@ -1,5 +1,5 @@
 from sympy.core import Symbol
-from sympy import Tuple
+from sympy import Tuple, Lambda
 
 from pyccel.codegen.printing.pycode import PythonCodePrinter as PyccelPythonCodePrinter
 
@@ -12,6 +12,20 @@ class PythonCodePrinter(PyccelPythonCodePrinter):
         args = ','.join(self._print(i) for i in expr.args)
         fname = self._print(expr.func.__name__)
         return '{fname}({args})'.format(fname=fname, args=args)
+
+    def _print_Call(self, expr):
+        if isinstance(expr.expr, Lambda):
+            f = expr.expr
+            args = expr.arguments
+            expr = f(*args)
+            return self._print(expr)
+
+        else:
+            # TODO improve
+            func_name = expr.expr.name
+            func = self._print(func_name)
+            args = ','.join(self._print(i) for i in expr.arguments)
+            return'{func}({args})'.format(func=func, args=args)
 
     def _print_BasicBlock(self, expr):
         code = ''

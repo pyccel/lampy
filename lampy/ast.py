@@ -173,6 +173,28 @@ class LampyLambda(Basic):
         return self._args[0]
 
 #=========================================================================
+class Call(Basic):
+
+    def __new__(cls, expr, args):
+
+        # ...
+        if not isinstance(args, (tuple, list, Tuple)):
+            args = [args]
+
+        args = Tuple(*args)
+        # ...
+
+        return Basic.__new__(cls, expr, args)
+
+    @property
+    def expr(self):
+        return self._args[0]
+
+    @property
+    def arguments(self):
+        return self._args[1]
+
+#=========================================================================
 _map_registery = {'map': Map, 'xmap': ProductMap, 'tmap': TensorMap}
 
 _ = AnyArgument('_')

@@ -16,7 +16,7 @@ from pyccel.codegen.utilities import random_string
 from pyccel.ast.utilities import build_types_decorator
 from pyccel.ast.core import Slice
 from pyccel.ast.core import Variable, FunctionDef, Assign, AugAssign
-from pyccel.ast.core import Return, Pass, Import, String, FunctionCall
+from pyccel.ast.core import Return, Pass, Import, String
 from pyccel.ast.core  import For, Range, Len, Print
 from pyccel.ast.datatypes import get_default_value
 from pyccel.ast.datatypes import NativeInteger, NativeReal, NativeComplex, NativeBool
@@ -32,6 +32,7 @@ from .semantic import Parser as SemanticParser
 from .lexeme import _internal_applications
 from .lexeme import _math_functions
 from .lexeme import _internal_map_functors
+from .ast import Call
 
 #========================================================================
 # TODO improve or copy from pyccel.parser
@@ -963,18 +964,13 @@ class AST(object):
         # ...
 
         # ... apply the function to arguments
-#        if isinstance(iterator, Tuple):
-#            rhs = func( *iterator )
-#
-#        else:
-#            rhs = func( iterator )
-
-        if isinstance(iterator, Tuple):
-            rhs = FunctionCall( func.name, iterator )
-
-        else:
-            rhs = FunctionCall( func.name, [iterator] )
+        rhs = Call( func, iterator )
         # ...
+
+#        print('PAR ICI')
+#        print(func)
+#        print(func.name)
+##        import sys; sys.exit(0)
 
         # ... create lhs
         lhs = generator.iterator
@@ -1078,17 +1074,7 @@ class AST(object):
         # ...
 
         # ... apply the function to arguments
-#        if isinstance(iterator, Tuple):
-#            rhs = func( *iterator )
-#
-#        else:
-#            rhs = func( iterator )
-
-        if isinstance(iterator, Tuple):
-            rhs = FunctionCall( func.name, iterator )
-
-        else:
-            rhs = FunctionCall( func.name, [iterator] )
+        rhs = Call( func, iterator )
         # ...
 
         # ... create lhs
@@ -1177,17 +1163,7 @@ class AST(object):
         # ...
 
         # ... apply the function to arguments
-#        if isinstance(iterator, Tuple):
-#            rhs = func( *iterator )
-#
-#        else:
-#            rhs = func( iterator )
-
-        if isinstance(iterator, Tuple):
-            rhs = FunctionCall( func.name, iterator )
-
-        else:
-            rhs = FunctionCall( func.name, [iterator] )
+        rhs = Call( func, iterator )
         # ...
 
         # ... create lhs
@@ -1354,7 +1330,7 @@ class AST(object):
 #        body += [Import('omp_get_max_threads', 'pyccel.stdlib.internal.openmp')]
 #
 #        msg = lambda x: (String('> maximum available threads = '), x)
-#        x = FunctionCall('omp_get_max_threads', ())
+#        x = Call('omp_get_max_threads', ())
 #        body += [Print(msg(x))]
 #        # ...
 
