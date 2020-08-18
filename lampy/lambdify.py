@@ -5,48 +5,183 @@
 
 import os
 import sys
+import inspect
 import importlib
 import numpy as np
 from types import FunctionType
 
-from sympy import Indexed, IndexedBase, Tuple, Lambda
-from sympy.core.function import AppliedUndef
-from sympy.core.function import UndefinedFunction
-from sympy import sympify
-from sympy import Dummy
+#from sympy import Indexed, IndexedBase, Tuple, Lambda
+#from sympy.core.function import AppliedUndef
+#from sympy.core.function import UndefinedFunction
+#from sympy import sympify
+#from sympy import Dummy
 
-from pyccel.codegen.utilities import construct_flags as construct_flags_pyccel
-from pyccel.codegen.utilities import execute_pyccel
-from pyccel.codegen.utilities import get_source_function
-from pyccel.codegen.utilities import random_string
-from pyccel.codegen.utilities import write_code
-from pyccel.codegen.utilities import mkdir_p
-from pyccel.ast.datatypes import dtype_and_precsision_registry as dtype_registry
-from pyccel.ast import Variable, Len, Assign, AugAssign
-from pyccel.ast import For, Range, FunctionDef
-from pyccel.ast import FunctionCall
-from pyccel.ast import Comment, AnnotatedComment
-from pyccel.ast import Print, Pass, Return, Import
-from pyccel.ast.core import Slice, String
-from pyccel.ast import Zeros
-from pyccel.ast.datatypes import NativeInteger, NativeReal, NativeComplex, NativeBool
+#from pyccel.codegen.utilities import construct_flags as construct_flags_pyccel
+#from pyccel.codegen.utilities import execute_pyccel
+#from pyccel.codegen.utilities import get_source_function
+#from pyccel.codegen.utilities import random_string
+#from pyccel.codegen.utilities import write_code
+#from pyccel.codegen.utilities import mkdir_p
+#from pyccel.ast.datatypes import dtype_and_precsision_registry as dtype_registry
+#from pyccel.ast import Variable, Len, Assign, AugAssign
+#from pyccel.ast import For, Range, FunctionDef
+#from pyccel.ast import FunctionCall
+#from pyccel.ast import Comment, AnnotatedComment
+#from pyccel.ast import Import
+#from pyccel.ast.core import Slice, String
+#from pyccel.ast import Zeros
+#from pyccel.ast.datatypes import NativeInteger, NativeReal, NativeComplex, NativeBool
 from pyccel.codegen.printing.pycode import pycode
-from pyccel.codegen.printing.fcode  import fcode
-from pyccel.ast.utilities import build_types_decorator
-from pyccel.ast.datatypes import get_default_value
-from pyccel.parser import Parser as PyccelParser
+#from pyccel.codegen.printing.fcode  import fcode
+#from pyccel.ast.utilities import build_types_decorator
+#from pyccel.ast.datatypes import get_default_value
+from pyccel.parser.parser import Parser as PyccelParser
 
-from .syntax    import parse as parse_lambda
-from .semantic  import Parser as SemanticParser
-from .codegen   import AST
-from .utilities import get_decorators
-from .utilities import get_pyccel_imports_code
-from .utilities import get_dependencies_code
-from .utilities import math_atoms_as_str
-from .printing  import pycode
-from .interface import LambdaInterface
+from lampy.syntax    import parse as parse_lambda
+from lampy.semantic  import Parser as SemanticParser
+from lampy.codegen   import AST
+from lampy.utilities import get_decorators
+from lampy.utilities import get_pyccel_imports_code
+from lampy.utilities import get_dependencies_code
+from lampy.utilities import math_atoms_as_str
+from lampy.printing  import pycode
+from lampy.interface import LambdaInterface
+from os import path
+from pyccel.ast.basic import Basic
+from sympy import Integral, Symbol, Tuple
+from sympy.utilities.iterables import iterable
+
+#==============================================================================
+class AsName(Basic):
+    def __new__(cls, name, target):
+
+        # TODO check
+
+        return Basic.__new__(cls, name, target)
+
+    @property
+    def name(self):
+        return self._args[0]
+
+    @property
+    def target(self):
+        return self._args[1]
+
+    def _sympystr(self, printer):
+        sstr = printer.doprint
+        return '{0} as {1}'.format(sstr(self.name), sstr(self.target))
+
+#==============================================================================
+class DottedName(Basic):
+    def __new__(cls, *args):
+        return Basic.__new__(cls, *args)
+
+    @property
+    def name(self):
+        return self._args
+
+    def __str__(self):
+        return """.""".join(str(n) for n in self.name)
+
+    def _sympystr(self, printer):
+        sstr = printer.doprint
+        return """.""".join(sstr(n) for n in self.name)
 
 
+
+#==============================================================================
+class Import(Basic):
+
+    def __new__(cls, target, source=None):
+
+        def _format(i):
+            if isinstance(i, str):
+                if '.' in i:
+                    return DottedName(*i.split('.'))
+                else:
+                    return Symbol(i)
+            if isinstance(i, (DottedName, AsName)):
+                return i
+            elif isinstance(i, Symbol):
+                return i
+            else:
+                raise TypeError('Expecting a string, Symbol DottedName, given {}'.format(type(i)))
+
+        _target = []
+        if isinstance(target, (str, Symbol, DottedName, AsName)):
+            _target = [_format(target)]
+        elif iterable(target):
+            for i in target:
+                _target.append(_format(i))
+        target = Tuple(*_target, sympify=False)
+
+        if not source is None:
+            source = _format(source)
+
+        return Basic.__new__(cls, target, source)
+
+    @property
+    def target(self):
+        return self._args[0]
+
+    @property
+    def source(self):
+        return self._args[1]
+
+    def _sympystr(self, printer):
+        sstr = printer.doprint
+        target = ', '.join([sstr(i) for i in self.target])
+        if self.source is None:
+            return 'import {target}'.format(target=target)
+        else:
+            source = sstr(self.source)
+            return 'from {source} import {target}'.format(source=source,
+                    target=target)
+#==============================================================================
+
+def get_source_function(func):
+    if not callable(func):
+        raise TypeError('Expecting a callable function')
+
+    lines = inspect.getsourcelines(func)
+    lines = lines[0]
+    # remove indentation if the first line is indented
+    a = lines[0]
+    leading_spaces = len(a) - len(a.lstrip())
+    code = ''
+    for a in lines:
+        if leading_spaces > 0:
+            line = a[leading_spaces:]
+        else:
+            line = a
+        code = '{code}{line}'.format(code=code, line=line)
+
+    return code
+
+#==============================================================================
+def write_code(filename, code, folder=None):
+    if not folder:
+        folder = os.getcwd()
+    folder = os.path.abspath(folder)
+    if not os.path.isdir(folder):
+        raise ValueError('{} folder does not exist'.format(folder))
+    filename = os.path.basename( filename )
+    filename = os.path.join(folder, filename)
+    # TODO check if init exists
+    # add __init__.py for imports
+    cmd = 'touch {}/__init__.py'.format(folder)
+    os.system(cmd)
+    f = open(filename, 'w')
+    for line in code:
+        f.write(line)
+    f.close()
+    return filename
+#==============================================================================
+def mkdir_p(dir):
+    # type: (unicode) -> None
+    if path.isdir(dir):
+        return
+    os.makedirs(dir)
 #==============================================================================
 _accelerator_registery = {'openmp':  'omp',
                           'openacc': 'acc',

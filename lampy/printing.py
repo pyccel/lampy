@@ -3,7 +3,7 @@ from sympy import Tuple, Lambda
 
 from pyccel.codegen.printing.pycode import PythonCodePrinter as PyccelPythonCodePrinter
 
-from .ast import BasicMap, PartialFunction
+from lampy.ast import BasicMap, PartialFunction
 
 class PythonCodePrinter(PyccelPythonCodePrinter):
 

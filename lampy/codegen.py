@@ -2,7 +2,8 @@
 
 import os
 from os.path import join, dirname
-
+import string
+import random
 from sympy import Symbol, Lambda, Function, Dummy
 from sympy import Tuple, IndexedBase, Indexed
 from sympy.core.function import AppliedUndef
@@ -12,12 +13,12 @@ from sympy import sympify
 from sympy import FunctionClass
 
 
-from pyccel.codegen.utilities import random_string
+#from pyccel.codegen.utilities import random_string
 from pyccel.ast.utilities import build_types_decorator
 from pyccel.ast.core import Slice
 from pyccel.ast.core import Variable, FunctionDef, Assign, AugAssign
 from pyccel.ast.core import Return, Pass, Import, String
-from pyccel.ast.core  import For, Range, Len, Print
+from pyccel.ast.core import For, Range, Len, SymbolicPrint
 from pyccel.ast.datatypes import get_default_value
 from pyccel.ast.datatypes import NativeInteger, NativeReal, NativeComplex, NativeBool
 from pyccel.ast.basic import Basic
@@ -27,15 +28,19 @@ from pyccel.ast.parallel.openmp import OMP_Schedule
 from pyccel.ast.parallel.openmp import OMP_NumThread
 from pyccel.ast.parallel.openmp import OMP_Reduction
 
-from .datatypes import TypeVariable, TypeTuple, TypeList
-from .semantic import Parser as SemanticParser
-from .lexeme import _internal_applications
-from .lexeme import _math_functions
-from .lexeme import _internal_map_functors
-from .ast import Call
-from .ast import BasicMap
+from lampy.datatypes import TypeVariable, TypeTuple, TypeList
+from lampy.semantic import Parser as SemanticParser
+from lampy.lexeme import _internal_applications
+from lampy.lexeme import _math_functions
+from lampy.lexeme import _internal_map_functors
+from lampy.ast import Call
+from lampy.ast import BasicMap
 
 #========================================================================
+def random_string(length):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))
+
 # TODO improve or copy from pyccel.parser
 def _get_name(i):
     if isinstance(i, Symbol):

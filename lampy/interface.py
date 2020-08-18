@@ -2,7 +2,8 @@
 
 import os
 from os.path import join, dirname
-
+import random
+import string
 from sympy import Symbol, Lambda, Function, Dummy
 from sympy import Tuple, IndexedBase
 from sympy.core.function import AppliedUndef
@@ -12,7 +13,7 @@ from sympy import sympify
 from sympy import FunctionClass
 
 
-from pyccel.codegen.utilities import random_string
+#from pyccel.codegen.utilities import random_string
 from pyccel.ast.utilities import build_types_decorator
 from pyccel.ast.core import Slice
 from pyccel.ast.core import Variable, FunctionDef, Assign, AugAssign
@@ -23,14 +24,18 @@ from pyccel.ast.core  import For, Range, Len
 from pyccel.ast.numpyext  import Zeros
 from pyccel.ast.basic import Basic
 
-from .datatypes import TypeVariable, TypeTuple, TypeList
-from .semantic  import Parser as SemanticParser
-from .lexeme  import _internal_applications
-from .lexeme  import _math_functions
-from .lexeme  import _internal_map_functors
-from .codegen   import BasicGenerator, Shaping, LambdaFunctionDef
+from lampy.datatypes import TypeVariable, TypeTuple, TypeList
+from lampy.semantic  import Parser as SemanticParser
+from lampy.lexeme  import _internal_applications
+from lampy.lexeme  import _math_functions
+from lampy.lexeme  import _internal_map_functors
+from lampy.codegen   import BasicGenerator, Shaping, LambdaFunctionDef
 
 #=======================================================================================
+def random_string(length):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))
+
 def compute_shape( arg, generators ):
     if not( arg in generators.keys() ):
         raise ValueError('Could not find {}'.format( arg ))
