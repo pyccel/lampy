@@ -70,7 +70,7 @@ def get_pyccel_imports_code():
     code = ''
     code += '\nfrom pyccel.decorators import types'
     code += '\nfrom pyccel.decorators import pure'
-    code += '\nfrom pyccel.decorators import external, external_call'
+#   code += '\nfrom pyccel.decorators import external, external_call'
 #    code += '\nfrom pyccel.decorators import shapes'
 #    code += '\nfrom pyccel.decorators import workplace'
 #    code += '\nfrom pyccel.decorators import stack_array'

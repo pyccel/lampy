@@ -16,6 +16,7 @@ from sympy import FunctionClass
 #from pyccel.codegen.utilities import random_string
 from pyccel.ast.utilities import build_types_decorator
 from pyccel.ast.core import Slice
+from pyccel.ast.core import Block
 from pyccel.ast.core import Variable, FunctionDef, Assign, AugAssign
 from pyccel.ast.core import Return, Pass, Import, String
 from pyccel.ast.core import For, Range, Len, SymbolicPrint
@@ -155,18 +156,28 @@ def _get_default_value(var, op=None):
     raise NotImplementedError('TODO')
 
 #=========================================================================
+
+class Types (Function):
+    def __new__(cls, *args):
+        return Basic.__new__(cls, *args)
+#=========================================================================
 class LambdaFunctionDef(FunctionDef):
 
     """."""
     def __new__( cls, name, arguments, results, body, **kwargs ):
         generators = kwargs.pop('generators', {})
         m_results  = kwargs.pop('m_results',   [])
-
         obj = FunctionDef.__new__(cls, name, arguments, results, body, **kwargs)
-        obj._generators = generators
-        obj._m_results  = m_results
+
 
         return obj
+
+    def __init__(self, name, arguments, results, body, **kwargs):
+        generators = kwargs.pop('generators', {})
+        m_results = kwargs.pop('m_results', [])
+        super().__init__(name, arguments, results, body, **kwargs)
+        self._generators = generators
+        self._m_results = m_results
 
     @property
     def generators(self):
@@ -427,7 +438,11 @@ class MainBlock(BasicBlock):
             # ...
 
             # ...
-            body = [OMP_Parallel( clauses, variables, body )]
+
+            body = [Block( 'function' ,  variables, body )]
+
+
+
             # ...
 
             # TODO this is a hack to handle the last comment after a loop, so that
@@ -774,6 +789,7 @@ class AST(object):
         self._typed_functions = parser.typed_functions
         self._default_type    = parser.default_type
         self._generators      = {}
+
         # ...
 
         # ...
@@ -1391,9 +1407,7 @@ class AST(object):
 #        decorators = {'types':         build_types_decorator(args),
 #                      'external_call': []}
 
-        decorators = {'types':         build_types_decorator(args),
-                      'external': []}
-
+        decorators = {'types':   Types(*build_types_decorator(args))}
         tag         = random_string( 6 )
         name      = 'lambda_{}'.format( tag )
         # ...
@@ -1403,6 +1417,7 @@ class AST(object):
                                   decorators      = decorators,
                                   generators      = self.generators,
                                   m_results       = m_results )
+
 
     def _visit_Integer(self, stmt):
         return stmt

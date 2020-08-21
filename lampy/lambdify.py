@@ -50,7 +50,8 @@ from os import path
 from pyccel.ast.basic import Basic
 from sympy import Integral, Symbol, Tuple
 from sympy.utilities.iterables import iterable
-
+import random
+import string
 #==============================================================================
 class AsName(Basic):
     def __new__(cls, name, target):
@@ -187,12 +188,46 @@ _accelerator_registery = {'openmp':  'omp',
                           'openacc': 'acc',
                           None:      None}
 
+def random_string(length):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))
+#==============================================================================
+def create_lampy_folder (code ):
+
+    tag = random_string(8)
+    module_name = 'mod_{}'.format(tag)
+    pymod_filename = '{}.py'.format(module_name)
+    pymod_filepath = os.path.abspath(pymod_filename)
+
+    # Store current directory
+    base_dirpath = os.getcwd()
+
+    # Define working directory 'folder'
+    folder = os.path.dirname(pymod_filepath)
+
+    # Define directory name and path for epyccel files
+    lampy_dirname = '__lampy__'
+    lampy_dirpath = os.path.join(folder, lampy_dirname)
+
+    # Create new directories if not existing
+    os.makedirs(folder, exist_ok=True)
+    os.makedirs(lampy_dirpath, exist_ok=True)
+
+    # Change working directory to '__epyccel__'
+    os.chdir(lampy_dirpath)
+
+    # Store python file in '__epyccel__' folder, so that execute_pyccel can run
+    with open(pymod_filename, 'w') as f:
+        f.writelines(code)
+
+    return pymod_filename
 #==============================================================================
 def _parse_typed_functions(user_functions):
     """generate ast for dependencies."""
     code  = get_pyccel_imports_code()
     code += get_dependencies_code(user_functions)
-    pyccel = PyccelParser(code)
+    filename= create_lampy_folder(code)
+    pyccel = PyccelParser(filename)
     ast = pyccel.parse()
     settings = {}
     ast = pyccel.annotate(**settings)
@@ -237,6 +272,7 @@ def _lambdify(func, namespace={}, **kwargs):
             raise NotImplementedError('')
 
     typed_functions = _parse_typed_functions(list(user_functions.values()))
+
     # ...
 
     # ... semantic analysis

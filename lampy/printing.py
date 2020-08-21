@@ -50,10 +50,32 @@ class PythonCodePrinter(PyccelPythonCodePrinter):
 
         # ...
         if expr.body:
+
             body = '\n'.join(self._print(i) for i in expr.body)
 
             code = '{code}\n{new}'.format( code = code,
                                            new  = body )
+        # ...
+
+        return code
+
+    # .....................................................
+    def _print_Block(self, expr):
+        code = ''
+
+        # ...
+        if expr.declarations:
+            declarations = '\n'.join(self._print(i) for i in expr.declarations)
+
+            code = '{code}\n{new}'.format(code=code,
+                                          new=declarations)
+        # ...
+
+        # ...
+        if expr.body:
+            body =self._print(expr.body)
+            code = '{code}\n{new}'.format(code=code,
+                                          new=body)
         # ...
 
         return code

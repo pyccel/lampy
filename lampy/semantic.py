@@ -295,20 +295,14 @@ class Parser(object):
     def doit(self, verbose=False):
 
         # ... compute type
-        i_count = 0
-        max_count = 2
-        while(i_count < max_count and not isinstance(self.main, BasicTypeVariable)):
-            if verbose:
-                print('----> BEFORE ', self.main)
 
-            self.main = self._visit(self.main)
+        if verbose:
+            print('----> BEFORE ', self.main)
 
-            if verbose:
-                print('<---- AFTER', self.main)
+        self.main = self._visit(self.main)
 
-            i_count += 1
-        # ...
-
+        if verbose:
+            print('<---- AFTER', self.main)
         return self.main
 
     def _visit(self, stmt, value=None):
