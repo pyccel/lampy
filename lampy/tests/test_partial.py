@@ -7,7 +7,7 @@ import time
 
 from pyccel.decorators import types, pure
 from pyccel.ast.datatypes import NativeInteger, NativeReal, NativeComplex, NativeBool
-
+from lampy.ast    import PartialFunction
 from lampy.lambdify import _lambdify
 from lampy import TypeVariable, TypeTuple, TypeList
 from lampy import add, mul

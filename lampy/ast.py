@@ -1,12 +1,17 @@
 # coding: utf-8
-
+import random
+import string
 from sympy import Symbol, Tuple, Dict, Lambda
 
 from pyccel.ast.basic import Basic
-from pyccel.ast.core  import FunctionCall, FunctionDef
-from pyccel.codegen.utilities import random_string
+from pyccel.ast.core import FunctionCall, FunctionDef
+
 
 #=========================================================================
+def random_string(length):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))
+
 class BasicMap(Basic):
     """."""
     _name = 'BasicMap'

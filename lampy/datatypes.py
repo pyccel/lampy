@@ -1,14 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+import random, string
 from sympy import Tuple, IndexedBase
 
 from pyccel.ast.basic import Basic
 from pyccel.ast.core  import Variable, For, Range, Assign, Len
-from pyccel.codegen.utilities import random_string
+#from pyccel.codegen.utilities import random_string
 
 
 #=========================================================================
+def random_string(length):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))
+
 class BasicTypeVariable(Basic):
     _tag  = None
 

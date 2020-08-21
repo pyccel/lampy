@@ -1,13 +1,13 @@
 # -*- coding: UTF-8 -*-
 
-from .lexeme        import *
-from .ast           import *
-from .datatypes     import *
-from .syntax        import *
-from .compatibility import *
-from .semantic      import *
-from .codegen       import *
-from .lambdify      import *
-from .utilities     import *
-from .printing      import *
-from .interface     import *
+from lampy.lexeme        import *
+from lampy.ast           import *
+from lampy.datatypes     import *
+from lampy.syntax        import *
+from lampy.compatibility import *
+from lampy.semantic      import *
+from lampy.codegen       import *
+from lampy.lambdify      import *
+from lampy.utilities     import *
+from lampy.printing      import *
+from lampy.interface     import *

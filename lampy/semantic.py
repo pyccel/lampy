@@ -2,7 +2,8 @@
 
 import os
 from os.path import join, dirname
-
+import random
+import string
 from sympy import Symbol, Lambda, Function, Dummy
 from sympy import Tuple, IndexedBase
 from sympy.core.function import AppliedUndef
@@ -12,34 +13,39 @@ from sympy import sympify
 from sympy import FunctionClass
 
 
-from pyccel.codegen.utilities import random_string
+#from pyccel.codegen.utilities import random_string
 from pyccel.ast.utilities import build_types_decorator
-from pyccel.ast.datatypes import Int, Real, Complex, Bool
+from pyccel.ast.datatypes import Int, Real, Cmplx, Bool
 from pyccel.ast.core import Slice
 from pyccel.ast.core import Variable, FunctionDef, Assign, AugAssign
 from pyccel.ast.core import Return
 from pyccel.ast.basic import Basic
 
-from .datatypes import assign_type, BasicTypeVariable
-from .datatypes import TypeVariable, TypeTuple, TypeList, TypeFunction
-from .lexeme    import _internal_map_functors
-from .lexeme    import _internal_functors
-from .lexeme    import _internal_zip_functions
-from .lexeme    import _internal_product_functions
-from .lexeme    import _internal_applications
-from .lexeme    import _elemental_math_functions
-from .lexeme    import _math_vector_functions
-from .lexeme    import _math_matrix_functions
-from .lexeme    import _math_functions
-from .ast       import Map, ProductMap, TensorMap, Zip, Product
-from .ast       import BasicReduce, AddReduce, MulReduce
-from .ast       import BasicMap
-from .ast       import PartialFunction
-from .ast       import LampyLambda
-from .ast       import FunctionSymbol
+from lampy.datatypes import assign_type, BasicTypeVariable
+from lampy.datatypes import TypeVariable, TypeTuple, TypeList, TypeFunction
+from lampy.lexeme    import _internal_map_functors
+from lampy.lexeme    import _internal_functors
+from lampy.lexeme    import _internal_zip_functions
+from lampy.lexeme    import _internal_product_functions
+from lampy.lexeme    import _internal_applications
+from lampy.lexeme    import _elemental_math_functions
+from lampy.lexeme    import _math_vector_functions
+from lampy.lexeme    import _math_matrix_functions
+from lampy.lexeme    import _math_functions
+from lampy.ast       import Map, ProductMap, TensorMap, Zip, Product
+from lampy.ast       import BasicReduce, AddReduce, MulReduce
+from lampy.ast       import BasicMap
+from lampy.ast       import PartialFunction
+from lampy.ast       import LampyLambda
+from lampy.ast       import FunctionSymbol
+
 
 
 #=========================================================================
+def random_string(length):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))
+
 def sanitize(expr):
     if isinstance(expr, Lambda):
         args = expr.variables
@@ -122,11 +128,11 @@ class Parser(object):
             precision = 8
 
         elif prefix == 'c':
-            dtype     = Complex
+            dtype     = Cmplx
             precision = 8
 
         elif prefix == 'z':
-            dtype     = Complex
+            dtype     = Cmplx
             precision = 16
 
         else:
@@ -289,20 +295,14 @@ class Parser(object):
     def doit(self, verbose=False):
 
         # ... compute type
-        i_count = 0
-        max_count = 2
-        while(i_count < max_count and not isinstance(self.main, BasicTypeVariable)):
-            if verbose:
-                print('----> BEFORE ', self.main)
 
-            self.main = self._visit(self.main)
+        if verbose:
+            print('----> BEFORE ', self.main)
 
-            if verbose:
-                print('<---- AFTER', self.main)
+        self.main = self._visit(self.main)
 
-            i_count += 1
-        # ...
-
+        if verbose:
+            print('<---- AFTER', self.main)
         return self.main
 
     def _visit(self, stmt, value=None):

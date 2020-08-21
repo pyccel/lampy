@@ -1,6 +1,8 @@
 # coding: utf-8
 
 import os
+import random
+import string
 from os.path import join, dirname
 
 from sympy import Symbol, Lambda, Function, Dummy
@@ -8,16 +10,20 @@ from sympy import sympify, Dict, Tuple
 
 from textx.metamodel import metamodel_from_str
 
-from pyccel.codegen.utilities import random_string
+#from pyccel.codegen.utilities import random_string
 
-from .ast    import AddReduce, MulReduce, FunctionSymbol, BasicMap
-from .ast    import _map_registery
-from .ast    import _, AnyArgument
-from .ast    import PartialFunction
-from .lexeme import _internal_map_functors
-from .lexeme import _internal_reduction_operators
+from lampy.ast    import AddReduce, MulReduce, FunctionSymbol, BasicMap
+from lampy.ast    import _map_registery
+from lampy.ast    import _, AnyArgument
+from lampy.ast    import PartialFunction
+from lampy.lexeme import _internal_map_functors
+from lampy.lexeme import _internal_reduction_operators
 
 #==========================================================================
+def random_string(length):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))
+
 class NamedAbstraction(object):
     def __init__(self, **kwargs):
         self.name = kwargs.pop('name')

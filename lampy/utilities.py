@@ -22,14 +22,14 @@ from sympy import NumberSymbol
 from sympy.printing.pycode import _known_functions_math
 from sympy.printing.pycode import _known_constants_math
 
-from pyccel.codegen.utilities import get_source_function
-from pyccel.ast.datatypes import dtype_and_precsision_registry as dtype_registry
+from pyccel.epyccel import get_source_function
+#from pyccel.ast.datatypes import dtype_and_precsision_registry as dtype_registry
 from pyccel.ast.core import Slice, String
 from pyccel.ast.datatypes import NativeInteger, NativeReal, NativeComplex, NativeBool
 from pyccel.ast.datatypes import get_default_value
-from pyccel.parser import Parser
+from pyccel.parser.parser import Parser
 
-from .ast import FunctionSymbol
+from lampy.ast import FunctionSymbol
 
 #==========================================================================
 def math_atoms_as_str(expr):
@@ -70,7 +70,7 @@ def get_pyccel_imports_code():
     code = ''
     code += '\nfrom pyccel.decorators import types'
     code += '\nfrom pyccel.decorators import pure'
-    code += '\nfrom pyccel.decorators import external, external_call'
+#   code += '\nfrom pyccel.decorators import external, external_call'
 #    code += '\nfrom pyccel.decorators import shapes'
 #    code += '\nfrom pyccel.decorators import workplace'
 #    code += '\nfrom pyccel.decorators import stack_array'
