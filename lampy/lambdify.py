@@ -192,10 +192,8 @@ def _parse_typed_functions(user_functions):
     """generate ast for dependencies."""
     code  = get_pyccel_imports_code()
     code += get_dependencies_code(user_functions)
-
     pyccel = PyccelParser(code)
     ast = pyccel.parse()
-
     settings = {}
     ast = pyccel.annotate(**settings)
     return ast.namespace.functions

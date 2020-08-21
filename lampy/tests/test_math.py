@@ -14,12 +14,11 @@ from lampy.lambdify import _lambdify
 def test_annotate_map_list(**settings):
     sin = np.sin
     l = lambda xs: map(sin, xs)
-
     L = _lambdify( l, **settings )
-
     xs = np.linspace(0., np.pi, 100)
     out = L(xs)
     expected = list(l(xs))
+
     assert(np.allclose( out, expected ))
 
     print('DONE.')
