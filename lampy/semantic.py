@@ -146,7 +146,12 @@ class Parser(object):
         # ... get all functions
         functions = list(expr.atoms(FunctionSymbol))
 
+        print('=================================')
+        print('> functions = ', functions)
+        print(_elemental_math_functions)
+
         for f in functions:
+            print('f.name = ', f.name, type(f.name))
             if f.name in _elemental_math_functions:
                 type_domain   = self.default_type
                 type_codomain = self.default_type

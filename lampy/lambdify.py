@@ -27,14 +27,14 @@ from types import FunctionType
 #from pyccel.ast import For, Range, FunctionDef
 #from pyccel.ast import FunctionCall
 #from pyccel.ast import Comment, AnnotatedComment
-#from pyccel.ast import Import
 #from pyccel.ast.core import Slice, String
 #from pyccel.ast import Zeros
 #from pyccel.ast.datatypes import NativeInteger, NativeReal, NativeComplex, NativeBool
-from pyccel.codegen.printing.pycode import pycode
 #from pyccel.codegen.printing.fcode  import fcode
 #from pyccel.ast.utilities import build_types_decorator
 #from pyccel.ast.datatypes import get_default_value
+from pyccel.ast.core import Import
+from pyccel.codegen.printing.pycode import pycode
 from pyccel.parser.parser import Parser as PyccelParser
 
 from lampy.syntax    import parse as parse_lambda
@@ -89,57 +89,7 @@ class DottedName(Basic):
         return """.""".join(sstr(n) for n in self.name)
 
 
-
 #==============================================================================
-class Import(Basic):
-
-    def __new__(cls, target, source=None):
-
-        def _format(i):
-            if isinstance(i, str):
-                if '.' in i:
-                    return DottedName(*i.split('.'))
-                else:
-                    return Symbol(i)
-            if isinstance(i, (DottedName, AsName)):
-                return i
-            elif isinstance(i, Symbol):
-                return i
-            else:
-                raise TypeError('Expecting a string, Symbol DottedName, given {}'.format(type(i)))
-
-        _target = []
-        if isinstance(target, (str, Symbol, DottedName, AsName)):
-            _target = [_format(target)]
-        elif iterable(target):
-            for i in target:
-                _target.append(_format(i))
-        target = Tuple(*_target, sympify=False)
-
-        if not source is None:
-            source = _format(source)
-
-        return Basic.__new__(cls, target, source)
-
-    @property
-    def target(self):
-        return self._args[0]
-
-    @property
-    def source(self):
-        return self._args[1]
-
-    def _sympystr(self, printer):
-        sstr = printer.doprint
-        target = ', '.join([sstr(i) for i in self.target])
-        if self.source is None:
-            return 'import {target}'.format(target=target)
-        else:
-            source = sstr(self.source)
-            return 'from {source} import {target}'.format(source=source,
-                    target=target)
-#==============================================================================
-
 def get_source_function(func):
     if not callable(func):
         raise TypeError('Expecting a callable function')
@@ -314,7 +264,7 @@ def _lambdify(func, namespace={}, **kwargs):
     math_elements = math_atoms_as_str(func)
     math_imports = []
     for e in math_elements:
-        math_imports += [Import(e, 'numpy')]
+        math_imports += [Import('numpy', e)]
 
     imports += math_imports
 
@@ -344,9 +294,10 @@ def _lambdify(func, namespace={}, **kwargs):
     # ...
     func_name   = str(func.name)
 
-    module_name = 'mod_{}'.format(func_name)
+    module_name = 'package_{}'.format(func_name)
     write_code('{}.py'.format(module_name), code, folder=folder)
-#    print(code)
+    print('----------------------------------')
+    print(code)
 #    sys.exit(0)
 
     sys.path.append(folder)
@@ -376,17 +327,20 @@ def _lambdify(func, namespace={}, **kwargs):
     # ..............................................
     #     generate a python interface
     # ..............................................
-    f2py_module_name = os.path.basename(f2py_package.__file__)
-    f2py_module_name = os.path.splitext(f2py_module_name)[0]
+#    f2py_module_name = os.path.basename(f2py_package.__file__)
+#    f2py_module_name = os.path.splitext(f2py_module_name)[0]
+    f2py_module_name = module_name
 
     # ... create a python interface with an optional 'out' argument
     #     à la numpy
-    interface = LambdaInterface(func, Import(f2py_func_name, f2py_module_name))
+    interface = LambdaInterface(func, Import(f2py_module_name, f2py_func_name))
     # ...
 
     # ...
     code = pycode(interface)
-#    print(code)
+    print('----------------------------------')
+    print(code)
+#    sys.exit(0)
     # ...
 
     # ...

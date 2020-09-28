@@ -85,8 +85,8 @@ class LambdaInterface(Basic):
         if_body = []
 
         # TODO add imports from numpy
-        if_body += [Import('zeros', 'numpy')]
-        if_body += [Import('float64', 'numpy')]
+        if_body += [Import('numpy', 'zeros')]
+        if_body += [Import('numpy', 'float64')]
 
         for i, var in enumerate(results):
             if var in m_results:

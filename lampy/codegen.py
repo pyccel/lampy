@@ -1407,11 +1407,18 @@ class AST(object):
         name      = 'lambda_{}'.format( tag )
         # ...
 
+        # ... define imports
+#        imports = ('zeros', 'zeros_like') + tuple(self._math_functions)
+        imports = [Import('numpy', 'sin')]
+        # ...
+
         return LambdaFunctionDef( name, args, s_results, body,
                                   arguments_inout = inout,
                                   decorators      = decorators,
                                   generators      = self.generators,
-                                  m_results       = m_results )
+                                  m_results       = m_results,
+                                  imports         = imports
+                                )
 
 
     def _visit_Integer(self, stmt):
