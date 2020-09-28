@@ -168,11 +168,11 @@ def test_reduce_function_product(**settings):
 #==============================================================================
 
 def teardown_module():
-    from sympy import cache
+    import sympy.core.cache as cache
     cache.clear_cache()
 
 def teardown_function():
-    from sympy import cache
+    import sympy.core.cache as cache
     cache.clear_cache()
 
 

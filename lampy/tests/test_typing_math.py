@@ -35,11 +35,11 @@ def test_map_sin_list(**settings):
 #==============================================================================
 
 def teardown_module():
-    from sympy import cache
+    import sympy.core.cache as cache
     cache.clear_cache()
 
 def teardown_function():
-    from sympy import cache
+    import sympy.core.cache as cache
     cache.clear_cache()
 
 ###########################################

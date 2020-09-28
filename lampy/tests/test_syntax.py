@@ -29,11 +29,11 @@ def test_syntax_partial_1():
 #=========================================================================
 
 def teardown_module():
-    from sympy import cache
+    import sympy.core.cache as cache
     cache.clear_cache()
 
 def teardown_function():
-    from sympy import cache
+    import sympy.core.cache as cache
     cache.clear_cache()
 
 ###########################################
