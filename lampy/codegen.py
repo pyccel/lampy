@@ -718,7 +718,7 @@ def _build_block( generator, stmts ):
                     for v in xs:
                         body = [Assign(x, IndexedBase(v.name)[i])] + body
 
-            body = [For(i, Range(0, n), Tuple(*body), strict=False)]
+            body = [For(i, Range(0, n), body)]
 
     else:
         for i,n,x,xs in zip(index, length, iterator, iterable):
@@ -730,7 +730,7 @@ def _build_block( generator, stmts ):
                 for v in xs:
                     body = [Assign(x, IndexedBase(v.name)[i])] + body
 
-            body = [For(i, Range(0, n), Tuple(*body), strict=False)]
+            body = [For(i, Range(0, n), body)]
     # ...
 
     return decs, body
@@ -993,11 +993,6 @@ class AST(object):
         # ... apply the function to arguments
         rhs = Call( func, iterator )
         # ...
-
-#        print('PAR ICI')
-#        print(func)
-#        print(func.name)
-##        import sys; sys.exit(0)
 
         # ... create lhs
         lhs = generator.iterator

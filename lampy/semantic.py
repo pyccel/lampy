@@ -49,6 +49,7 @@ def random_string(length):
 def sanitize(expr):
     if isinstance(expr, Lambda):
         args = expr.variables
+        args = tuple(args)
         expr = sanitize(expr.expr)
 
         return Lambda(args, expr)

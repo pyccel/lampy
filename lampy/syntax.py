@@ -54,6 +54,7 @@ def to_sympy(stmt):
 
     elif isinstance(stmt, Abstraction):
         args = [to_sympy(i) for i in stmt.args]
+        args = tuple(args)
         expr = to_sympy(stmt.expr)
 
         func = Lambda(args, expr)
