@@ -32,7 +32,6 @@ from pyccel.ast.parallel.openmp import OMP_Reduction
 from lampy.datatypes import TypeVariable, TypeTuple, TypeList
 from lampy.semantic import Parser as SemanticParser
 from lampy.lexeme import _internal_applications
-from lampy.lexeme import _math_functions
 from lampy.lexeme import _internal_map_functors
 from lampy.ast import Call
 from lampy.ast import BasicMap
@@ -789,7 +788,7 @@ class AST(object):
         self._typed_functions = parser.typed_functions
         self._default_type    = parser.default_type
         self._generators      = {}
-
+        self._math_functions  = parser.math_functions
         # ...
 
         # ...
@@ -1408,8 +1407,8 @@ class AST(object):
         # ...
 
         # ... define imports
-#        imports = ('zeros', 'zeros_like') + tuple(self._math_functions)
-        imports = [Import('numpy', 'sin')]
+        imports = ('zeros', 'zeros_like') + tuple(self._math_functions)
+        imports = [Import('numpy', imports)]
         # ...
 
         return LambdaFunctionDef( name, args, s_results, body,

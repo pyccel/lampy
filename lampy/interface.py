@@ -27,7 +27,6 @@ from pyccel.ast.basic import Basic
 from lampy.datatypes import TypeVariable, TypeTuple, TypeList
 from lampy.semantic  import Parser as SemanticParser
 from lampy.lexeme  import _internal_applications
-from lampy.lexeme  import _math_functions
 from lampy.lexeme  import _internal_map_functors
 from lampy.codegen   import BasicGenerator, Shaping, LambdaFunctionDef
 

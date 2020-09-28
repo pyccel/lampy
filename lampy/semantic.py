@@ -82,6 +82,7 @@ class Parser(object):
         assert(isinstance(expr, Lambda))
 
         self._expr = LampyLambda( expr )
+        self._math_functions  = []
 
         # ...
         self._d_types   = {}
@@ -146,13 +147,10 @@ class Parser(object):
         # ... get all functions
         functions = list(expr.atoms(FunctionSymbol))
 
-        print('=================================')
-        print('> functions = ', functions)
-        print(_elemental_math_functions)
-
         for f in functions:
-            print('f.name = ', f.name, type(f.name))
             if f.name in _elemental_math_functions:
+                self._math_functions.append(f.name)
+
                 type_domain   = self.default_type
                 type_codomain = self.default_type
 
@@ -168,6 +166,10 @@ class Parser(object):
     @property
     def expr(self):
         return self._expr
+
+    @property
+    def math_functions(self):
+        return self._math_functions
 
     @property
     def typed_functions(self):

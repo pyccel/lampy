@@ -296,8 +296,8 @@ def _lambdify(func, namespace={}, **kwargs):
 
     module_name = 'package_{}'.format(func_name)
     write_code('{}.py'.format(module_name), code, folder=folder)
-    print('----------------------------------')
-    print(code)
+#    print('----------------------------------')
+#    print(code)
 #    sys.exit(0)
 
     sys.path.append(folder)
@@ -338,8 +338,8 @@ def _lambdify(func, namespace={}, **kwargs):
 
     # ...
     code = pycode(interface)
-    print('----------------------------------')
-    print(code)
+#    print('----------------------------------')
+#    print(code)
 #    sys.exit(0)
     # ...
 
